@@ -499,7 +499,7 @@ export default function App() {
         </div>
         {/* GO button */}
         <button onClick={runMoves} disabled={running||!!status||moves.length===0}
-          style={{...btnStyle("#ffe066","#1a1a2e",running||!!status||moves.length===0),
+          style={{...btnStyle("#16a34a","#ffffff",running||!!status||moves.length===0),
             fontSize:"1.2rem", padding:"18px 20px", borderRadius:16,
             minWidth:80, minHeight:80, lineHeight:1.2}}>
           {running?"🚗\nDriving...":"🚦\nGO!"}
