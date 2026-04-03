@@ -318,6 +318,12 @@ export default function App() {
     else { setVarIdx((varIdx+1) % level.variations.length); }
   }
 
+  function handleResetStats() {
+    localStorage.removeItem('rtf_totalWins');
+    setTotalWins(0);
+    setWinCounts([0, 0, 0]);
+  }
+
   useEffect(() => {
     function onKey(e) {
       if (running||status) return;
@@ -368,6 +374,28 @@ export default function App() {
         <div style={{fontSize:"1.5rem"}}>🏆</div>
         <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.4rem",lineHeight:1}}>{totalWins}</div>
         <div style={{color:"#aee4f7",fontSize:"0.7rem",marginTop:2}}>Races Won</div>
+        <button onClick={handleResetStats} style={{
+          marginTop: 8,
+          background: "none",
+          border: "1px solid #ffffff44",
+          borderRadius: 6,
+          color: "#ffffff88",
+          fontSize: "0.65rem",
+          padding: "2px 6px",
+          cursor: "pointer",
+          transition: "all 0.2s",
+          fontWeight: "500"
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.color = "#ffe066";
+          e.currentTarget.style.borderColor = "#ffe066";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.color = "#ffffff88";
+          e.currentTarget.style.borderColor = "#ffffff44";
+        }}>
+          🔄 Reset
+        </button>
       </div>
       {/* Title */}
       <div style={{textAlign:"center",marginBottom:10}}>
@@ -435,7 +463,7 @@ export default function App() {
               )}
             </div>
           );
-        }))}
+        }))}  
         {/* Car */}
         {carPos && (
           <div style={{
@@ -471,7 +499,8 @@ export default function App() {
           {status==="win"&&(
             <div style={{margin:"8px 0 4px",display:"flex",justifyContent:"center",gap:6,fontSize:"1.8rem"}}>
               {Array.from({length:WINS_NEEDED}).map((_,i)=>(
-                <span key={i} style={{filter:i<currentWins?"none":"grayscale(1) opacity(0.3)"}}>⭐</span>
+                <span key={i} style={{filter:i<currentWins?"none":"grayscale(1) opacity(0.3)"}}>
+                  ⭐</span>
               ))}
             </div>
           )}
