@@ -149,7 +149,7 @@ function arrowBtn(disabled) {
 }
 function btnStyle(bg, color, disabled=false) {
   return {
-    background:disabled?"#333":bg, color:disabled?"#666":color,
+    background:disabled?"#166534":bg, color:disabled?"#ffffff":color,
     border:"none", borderRadius:"12px", padding:"10px 20px",
     fontSize:"1rem", fontWeight:"bold", cursor:disabled?"not-allowed":"pointer",
     transition:"all 0.15s", boxShadow:disabled?"none":"0 3px 10px #0006"
@@ -505,7 +505,7 @@ export default function App() {
             </div>
           )}
           <div style={{color:"#222",fontWeight:"bold",fontSize:"1rem",marginTop:4}}>
-            {status==="win"?mastered?(levelIdx<LEVELS.length-1?"Ready for the next level?":"You beat all levels! 🎉"):`Win ${currentWins} of ${WINS_NEEDED} — a new puzzle is coming!`:"Try a different path!"}
+            {status==="win"?mastered?(levelIdx<LEVELS.length-1?"Ready for the next level?":"You beat all levels! 🎉")`Win ${currentWins} of ${WINS_NEEDED} — a new puzzle is coming!`:"Try a different path!"}
           </div>
           <div style={{marginTop:10,display:"flex",gap:10,justifyContent:"center"}}>
             <button onClick={resetLevel} style={btnStyle("#1a1a2e","#ffe066")}>🔄 Try Again</button>
@@ -548,10 +548,12 @@ export default function App() {
         </div>
         {/* GO button */}
         <button onClick={runMoves} disabled={running||!!status||moves.length===0}
-          style={{...btnStyle("#ffe066","#1a1a2e",running||!!status||moves.length===0),
+          style={{...btnStyle("#16a34a","#ffffff",running||!!status||moves.length===0),
             fontSize:"1.2rem", padding:"18px 20px", borderRadius:16,
             minWidth:80, minHeight:80, lineHeight:1.2}}>
-          {running?"🚗\nDriving...":"🚦\nGO!"}
+          {running?"🚗
+Driving...":"🚦
+GO!"}
         </button>
       </div>
 
