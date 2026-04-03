@@ -415,7 +415,7 @@ export default function App() {
               )}
             </div>
           );
-        }))}
+        }))}}
         {/* Car */}
         {carPos && (
           <div style={{
@@ -451,12 +451,12 @@ export default function App() {
           {status==="win"&&(
             <div style={{margin:"8px 0 4px",display:"flex",justifyContent:"center",gap:6,fontSize:"1.8rem"}}>
               {Array.from({length:WINS_NEEDED}).map((_,i)=>(
-                <span key={i} style={{filter:i<currentWins?"none":"grayscale(1) opacity(0.3)"}}>⭐</span>
+                <span key={i} style={{filter:i<currentWins?"none":"grayscale(1) opacity(0.3)"}}}>⭐</span>
               ))}
             </div>
           )}
           <div style={{color:"#222",fontWeight:"bold",fontSize:"1rem",marginTop:4}}>
-            {status==="win"?mastered?(levelIdx<LEVELS.length-1?"Ready for the next level?":"You beat all levels! 🎉"):`Win ${currentWins} of ${WINS_NEEDED} — a new puzzle is coming!`:"Try a different path!"}
+            {status==="win"?mastered?(levelIdx<LEVELS.length-1?"Ready for the next level?":"You beat all levels! 🎉")`Win ${currentWins} of ${WINS_NEEDED} — a new puzzle is coming!`:"Try a different path!"}
           </div>
           <div style={{marginTop:10,display:"flex",gap:10,justifyContent:"center"}}>
             <button onClick={resetLevel} style={btnStyle("#1a1a2e","#ffe066")}>🔄 Try Again</button>
