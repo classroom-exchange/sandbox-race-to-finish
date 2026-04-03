@@ -213,6 +213,10 @@ export default function App() {
   const [totalWins, setTotalWins] = useState(
     () => parseInt(localStorage.getItem('rtf_totalWins') || '0')
   );
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(
+    () => parseInt(localStorage.getItem('rtf_bestStreak') || '0')
+  );
   const [touchHint, setTouchHint] = useState(null);
   const runRef = useRef(false);
 
@@ -289,7 +293,7 @@ export default function App() {
         setStatus("crash"); setRunning(false); runRef.current=false; return;
       }
       if (variation.obstacles.some(o=>o[0]===newPos[0]&&o[1]===newPos[1])) {
-        setCarPos(newPos); setStatus("crash"); setRunning(false); runRef.current=false; return;
+        setCarPos(newPos); setCurrentStreak(0); setStatus("crash"); setRunning(false); runRef.current=false; return;
       }
       setTrail(t=>[...t,[...curPos]]);
       pos=newPos; setCarPos([...pos]);
@@ -306,8 +310,19 @@ export default function App() {
         localStorage.setItem('rtf_totalWins', next);
         return next;
       });
+      setCurrentStreak(s => {
+        const next = s + 1;
+        setBestStreak(b => {
+          if (next > b) {
+            localStorage.setItem('rtf_bestStreak', next);
+            return next;
+          }
+          return b;
+        });
+        return next;
+      });
       setStatus("win");
-    } else { setStatus("miss"); }
+    } else { setCurrentStreak(0); setStatus("miss"); }
     setRunning(false);
   }
 
@@ -368,6 +383,14 @@ export default function App() {
         <div style={{fontSize:"1.5rem"}}>🏆</div>
         <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.4rem",lineHeight:1}}>{totalWins}</div>
         <div style={{color:"#aee4f7",fontSize:"0.7rem",marginTop:2}}>Races Won</div>
+        <div style={{marginTop:8,borderTop:"1px solid #ffffff22",paddingTop:6}}>
+          <div style={{fontSize:"1.3rem"}}>{currentStreak > 0 ? "🔥" : "⭐"}</div>
+          <div style={{color:"#ff8800",fontWeight:"bold",fontSize:"1.4rem",lineHeight:1}}>{bestStreak}</div>
+          <div style={{color:"#aee4f7",fontSize:"0.7rem",marginTop:2}}>Best Streak</div>
+          {currentStreak > 0 && (
+            <div style={{color:"#ffe066",fontSize:"0.65rem",marginTop:1}}>now: {currentStreak}</div>
+          )}
+        </div>
       </div>
       {/* Title */}
       <div style={{textAlign:"center",marginBottom:10}}>
@@ -555,3 +578,4 @@ export default function App() {
     </div>
   );
 }
+
