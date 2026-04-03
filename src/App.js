@@ -213,6 +213,13 @@ export default function App() {
   const [totalWins, setTotalWins] = useState(
     () => parseInt(localStorage.getItem('rtf_totalWins') || '0')
   );
+  const [leaderboard, setLeaderboard] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('rtf_leaderboard') || '[]'); }
+    catch { return []; }
+  });
+  const [showInitialsPrompt, setShowInitialsPrompt] = useState(false);
+  const [initialsInput, setInitialsInput] = useState('');
+  const [pendingScore, setPendingScore] = useState(null);
   const [touchHint, setTouchHint] = useState(null);
   const runRef = useRef(false);
 
@@ -304,6 +311,16 @@ export default function App() {
       setTotalWins(w => {
         const next = w + 1;
         localStorage.setItem('rtf_totalWins', next);
+        // Check if this score qualifies for the leaderboard
+        const board = (() => {
+          try { return JSON.parse(localStorage.getItem('rtf_leaderboard') || '[]'); }
+          catch { return []; }
+        })();
+        const qualifies = board.length < 3 || next > board[board.length - 1].wins;
+        if (qualifies) {
+          setPendingScore(next);
+          setShowInitialsPrompt(true);
+        }
         return next;
       });
       setStatus("win");
@@ -334,6 +351,19 @@ export default function App() {
     window.addEventListener("keydown", onKey);
     return ()=>window.removeEventListener("keydown", onKey);
   }, [running, status, moves, levelIdx, varIdx]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function saveToLeaderboard() {
+    const initials = initialsInput.trim().toUpperCase().slice(0, 3) || '???';
+    const entry = { initials, wins: pendingScore };
+    const updated = [...leaderboard, entry]
+      .sort((a, b) => b.wins - a.wins)
+      .slice(0, 3);
+    localStorage.setItem('rtf_leaderboard', JSON.stringify(updated));
+    setLeaderboard(updated);
+    setShowInitialsPrompt(false);
+    setInitialsInput('');
+    setPendingScore(null);
+  }
 
   if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
 
@@ -547,6 +577,70 @@ export default function App() {
           );
         })}
       </div>
+
+      {/* Leaderboard */}
+      {leaderboard.length > 0 && (
+        <div style={{
+          marginTop:20, width:"100%", maxWidth:380,
+          background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
+          border:"2px solid #ffe06666", borderRadius:16,
+          padding:"12px 16px", boxShadow:"0 4px 16px #0008"
+        }}>
+          <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"0.95rem",textAlign:"center",marginBottom:8}}>
+            🏆 Top Racers
+          </div>
+          {leaderboard.map((entry, i) => (
+            <div key={i} style={{
+              display:"flex", alignItems:"center", justifyContent:"space-between",
+              padding:"6px 8px", borderRadius:8, marginBottom:4,
+              background: i===0 ? "#ffe06622" : "#ffffff0a",
+              border: i===0 ? "1px solid #ffe06644" : "1px solid #ffffff11"
+            }}>
+              <span style={{fontSize:"1.1rem"}}>{["🥇","🥈","🥉"][i]}</span>
+              <span style={{color:"#fff",fontWeight:"bold",fontSize:"1rem",letterSpacing:2,flex:1,textAlign:"center"}}>{entry.initials}</span>
+              <span style={{color:"#ffe066",fontWeight:"bold",fontSize:"1rem"}}>{entry.wins} {entry.wins===1?"win":"wins"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Initials prompt modal */}
+      {showInitialsPrompt && (
+        <div style={{
+          position:"fixed", inset:0, background:"#000a", zIndex:200,
+          display:"flex", alignItems:"center", justifyContent:"center"
+        }}>
+          <div style={{
+            background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
+            border:"2px solid #ffe066", borderRadius:20,
+            padding:"28px 32px", textAlign:"center",
+            boxShadow:"0 8px 32px #0008", minWidth:260,
+            animation:"pop 0.3s"
+          }}>
+            <div style={{fontSize:"2rem",marginBottom:4}}>🏆</div>
+            <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.2rem",marginBottom:4}}>New High Score!</div>
+            <div style={{color:"#aee4f7",fontSize:"0.9rem",marginBottom:16}}>{pendingScore} {pendingScore===1?"race":"races"} won — enter your initials</div>
+            <input
+              autoFocus
+              maxLength={3}
+              value={initialsInput}
+              onChange={e => setInitialsInput(e.target.value.toUpperCase())}
+              onKeyDown={e => { if (e.key==="Enter") saveToLeaderboard(); if (e.key==="Escape") { setShowInitialsPrompt(false); setInitialsInput(''); setPendingScore(null); } }}
+              style={{
+                width:80, textAlign:"center", fontSize:"1.5rem", fontWeight:"bold",
+                letterSpacing:6, background:"#ffffff18", border:"2px solid #ffe066",
+                borderRadius:10, color:"#fff", padding:"8px 4px", outline:"none",
+                marginBottom:16, textTransform:"uppercase"
+              }}
+              placeholder="AAA"
+            />
+            <div style={{display:"flex",gap:10,justifyContent:"center"}}>
+              <button onClick={saveToLeaderboard} style={btnStyle("#ffe066","#1a1a2e")}>Save 🏁</button>
+              <button onClick={()=>{ setShowInitialsPrompt(false); setInitialsInput(''); setPendingScore(null); }} style={btnStyle("#444","#fff")}>Skip</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes pop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
