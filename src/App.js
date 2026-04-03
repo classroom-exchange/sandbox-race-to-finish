@@ -451,7 +451,7 @@ export default function App() {
           {status==="win"&&(
             <div style={{margin:"8px 0 4px",display:"flex",justifyContent:"center",gap:6,fontSize:"1.8rem"}}>
               {Array.from({length:WINS_NEEDED}).map((_,i)=>(
-                <span key={i} style={{filter:i<currentWins?"none":"grayscale(1) opacity(0.3)"}}}>⭐</span>
+                <span key={i} style={{filter:i<currentWins?"none":"grayscale(1) opacity(0.3)"}}>­⭐</span>
               ))}
             </div>
           )}
@@ -503,7 +503,7 @@ export default function App() {
             fontSize:"1.2rem", padding:"18px 20px", borderRadius:16,
             minWidth:80, minHeight:80, lineHeight:1.2}}>
           {running?"🚗
- Driving...":"🚦
+Driving...":"🚦
 GO!"}
         </button>
       </div>
