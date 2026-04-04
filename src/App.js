@@ -221,6 +221,21 @@ function CarPicker({ onPick }) {
           <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>🪝 Mater</div>
           <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Friendly tow truck!</div>
         </div>
+        {/* The King */}
+        <div onClick={()=>onPick("king")} style={{
+          background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
+          border:"3px solid #87CEEB", borderRadius:20, padding:"28px 32px",
+          cursor:"pointer", textAlign:"center", transition:"transform 0.2s, box-shadow 0.2s",
+          boxShadow:"0 4px 24px #87CEEB55"
+        }}
+        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"}
+        onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+          <div style={{marginBottom:12}}>
+            <KingSVG dir="right" size={80}/>
+          </div>
+          <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>👑 The King</div>
+          <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Sky blue champion!</div>
+        </div>
       </div>
     </div>
   );
