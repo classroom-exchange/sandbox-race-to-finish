@@ -376,7 +376,7 @@ export default function App() {
   const mastered = currentWins >= WINS_NEEDED;
   const cellSize = 72;
   const plannedPos = getPlannedPos();
-  const VehicleSVG = selectedCar === "mater" ? MaterSVG : CarSVG;
+  const VehicleSVG = selectedCar === "mater" ? MaterSVG : selectedCar === "king" ? KingSVG : CarSVG;
 
   // Build planned path for arrow overlay
   const plannedCells = [];
