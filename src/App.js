@@ -68,6 +68,34 @@ function CarSVG({ dir = "right", size = 48 }) {
   );
 }
 
+// The King - sky blue race car
+function KingSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 50"
+      style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      <ellipse cx="40" cy="32" rx="34" ry="13" fill="#87CEEB"/>
+      <path d="M20,32 Q22,16 35,14 L52,14 Q64,16 60,32 Z" fill="#5DB3D5"/>
+      <path d="M26,30 Q28,18 37,16 L50,16 Q58,18 56,30 Z" fill="#aee4f7" opacity="0.9"/>
+      <ellipse cx="35" cy="23" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="50" cy="23" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="36" cy="23.5" rx="3" ry="3.5" fill="#1a6bb5"/>
+      <ellipse cx="51" cy="23.5" rx="3" ry="3.5" fill="#1a6bb5"/>
+      <circle cx="37" cy="22.5" r="1.2" fill="black"/>
+      <circle cx="52" cy="22.5" r="1.2" fill="black"/>
+      <circle cx="35.5" cy="21.5" r="0.8" fill="white"/>
+      <circle cx="50.5" cy="21.5" r="0.8" fill="white"/>
+      <text x="40" y="37" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white" fontFamily="Arial">K</text>
+      <circle cx="18" cy="38" r="8" fill="#222"/><circle cx="18" cy="38" r="4" fill="#888"/>
+      <circle cx="62" cy="38" r="8" fill="#222"/><circle cx="62" cy="38" r="4" fill="#888"/>
+      <ellipse cx="72" cy="30" rx="4" ry="3" fill="#ffe066"/>
+      <ellipse cx="8" cy="30" rx="3" ry="2.5" fill="#ff6666"/>
+      <polygon points="44,17 41,22 43,22 40,28 44,22 42,22" fill="#ffe066"/>
+    </svg>
+  );
+}
+
 // Mater-style tow truck
 function MaterSVG({ dir = "right", size = 48 }) {
   const flipH = dir === "left";
