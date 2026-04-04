@@ -68,6 +68,50 @@ function CarSVG({ dir = "right", size = 48 }) {
   );
 }
 
+// The King - Plymouth Superbird from Disney Pixar Cars
+function TheKingSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg"
+      style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      {/* Sky blue main body */}
+      <rect x="50" y="75" width="210" height="50" rx="8" fill="#87CEEB" />
+      
+      {/* Cabin/roof hump */}
+      <rect x="100" y="50" width="120" height="30" rx="6" fill="#87CEEB" />
+      
+      {/* Nose cone - long pointed front */}
+      <polygon points="260,80 260,115 310,97" fill="#87CEEB" />
+      
+      {/* Rear spoiler struts - two vertical pillars */}
+      <rect x="58" y="20" width="6" height="55" fill="#8B1A1A" />
+      <rect x="75" y="20" width="6" height="55" fill="#8B1A1A" />
+      
+      {/* Spoiler blade - wide horizontal at top of struts */}
+      <rect x="38" y="12" width="60" height="12" rx="2" fill="#8B1A1A" />
+      
+      {/* Roof stripe */}
+      <rect x="100" y="50" width="120" height="8" rx="3" fill="#8B1A1A" />
+      
+      {/* Number panel */}
+      <rect x="140" y="82" width="60" height="30" rx="3" fill="#8B1A1A" />
+      
+      {/* Number 43 */}
+      <text x="170" y="103" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" fontFamily="Arial">43</text>
+      
+      {/* Windshield */}
+      <rect x="200" y="52" width="40" height="26" rx="3" fill="#B0D8F0" opacity="0.7" />
+      
+      {/* Wheels */}
+      <circle cx="90" cy="128" r="18" fill="#222" />
+      <circle cx="90" cy="128" r="10" fill="#888" />
+      <circle cx="230" cy="128" r="18" fill="#222" />
+      <circle cx="230" cy="128" r="10" fill="#888" />
+    </svg>
+  );
+}
+
 // Mater-style tow truck
 function MaterSVG({ dir = "right", size = 48 }) {
   const flipH = dir === "left";
