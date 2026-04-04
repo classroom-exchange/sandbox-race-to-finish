@@ -1,3 +1,34 @@
+/**
+ * App.js - Race to the Finish Puzzle Game Root Component
+ *
+ * This component provides a complete interactive puzzle-racing game experience where players:
+ * - Select one of two Cars (Lightning McQueen or Mater) as their character
+ * - Navigate through 3 increasingly challenging levels (each with 4 puzzle variations)
+ * - Queue up directional moves (up, down, left, right) to guide their car to a flag
+ * - Execute moves sequentially and receive feedback (win, crash, or miss)
+ * - Progress through levels by winning puzzles twice (WINS_NEEDED = 2)
+ * - Earn star ratings as they complete levels
+ *
+ * Key Features:
+ * - 5x5 grid-based puzzle levels with obstacles (traffic cones)
+ * - Visual path planning with arrow overlays showing queued moves
+ * - SVG-based car graphics with rotation/direction support
+ * - Touch/keyboard input support (arrow keys, Enter, Backspace)
+ * - Animated car movement with smooth CSS transitions
+ * - Responsive UI with gradient backgrounds and interactive feedback
+ * - Level progression system with lock/unlock mechanics
+ *
+ * State Management:
+ * - selectedCar: User's chosen vehicle character
+ * - levelIdx/varIdx: Current level and puzzle variation
+ * - moves: Queue of directional moves to execute
+ * - carPos/carDir: Current car position and facing direction
+ * - running: Flag indicating if moves are currently executing
+ * - status: Game state feedback (win/crash/miss/null)
+ * - trail: Breadcrumb trail of visited positions
+ * - winCounts: Star ratings per level (0-2)
+ * - touchHint: Temporary flash feedback for invalid grid taps
+ */
 import { useState, useEffect, useRef } from "react";
 
 const WINS_NEEDED = 2;
