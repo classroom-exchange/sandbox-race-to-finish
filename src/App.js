@@ -68,6 +68,43 @@ function CarSVG({ dir = "right", size = 48 }) {
   );
 }
 
+// The King - Plymouth Superbird style racer
+function TheKingSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 50" style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      {/* Body */}
+      <rect x="12" y="16" width="56" height="20" rx="4" fill="#87CEEB"/>
+      {/* Cabin */}
+      <path d="M28,16 Q30,4 42,3 L56,3 Q66,5 64,16 Z" fill="#5A9FBA"/>
+      {/* Windshield */}
+      <path d="M34,15 Q36,5 45,3 L58,3 Q64,5 62,15 Z" fill="#aee4f7" opacity="0.9"/>
+      {/* Eyes */}
+      <ellipse cx="42" cy="8" rx="4" ry="4.5" fill="white"/>
+      <ellipse cx="54" cy="8" rx="4" ry="4.5" fill="white"/>
+      <ellipse cx="42" cy="8.5" rx="2.5" ry="3" fill="#2c5aa0"/>
+      <ellipse cx="54" cy="8.5" rx="2.5" ry="3" fill="#2c5aa0"/>
+      <circle cx="42.5" cy="7.5" r="0.8" fill="black"/>
+      <circle cx="54.5" cy="7.5" r="0.8" fill="black"/>
+      {/* Rear spoiler - tall dark red */}
+      <rect x="10" y="10" width="3" height="26" fill="#8B1A1A"/>
+      <rect x="8" y="12" width="7" height="4" fill="#8B1A1A"/>
+      {/* Wheels */}
+      <circle cx="20" cy="34" r="8" fill="#222"/>
+      <circle cx="20" cy="34" r="4" fill="#666"/>
+      <circle cx="20" cy="34" r="2" fill="#999"/>
+      <circle cx="60" cy="34" r="8" fill="#222"/>
+      <circle cx="60" cy="34" r="4" fill="#666"/>
+      <circle cx="60" cy="34" r="2" fill="#999"/>
+      {/* Number 43 */}
+      <text x="40" y="28" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#8B1A1A" fontFamily="Arial">43</text>
+      {/* Headlight */}
+      <ellipse cx="72" cy="20" rx="3" ry="2.5" fill="#ffe8a0"/>
+    </svg>
+  );
+}
+
 // Mater-style tow truck
 function MaterSVG({ dir = "right", size = 48 }) {
   const flipH = dir === "left";
@@ -192,6 +229,21 @@ function CarPicker({ onPick }) {
           </div>
           <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>🪝 Mater</div>
           <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Friendly tow truck!</div>
+        </div>
+        {/* The King */}
+        <div onClick={()=>onPick("theking")} style={{
+          background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
+          border:"3px solid #87CEEB", borderRadius:20, padding:"28px 32px",
+          cursor:"pointer", textAlign:"center", transition:"transform 0.2s, box-shadow 0.2s",
+          boxShadow:"0 4px 24px #87CEEB55"
+        }}
+        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"}
+        onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+          <div style={{marginBottom:12}}>
+            <TheKingSVG dir="right" size={80}/>
+          </div>
+          <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>👑 The King</div>
+          <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Sky blue champion!</div>
         </div>
       </div>
     </div>
@@ -333,7 +385,7 @@ export default function App() {
   const mastered = currentWins >= WINS_NEEDED;
   const cellSize = 72;
   const plannedPos = getPlannedPos();
-  const VehicleSVG = selectedCar === "mater" ? MaterSVG : CarSVG;
+  const VehicleSVG = selectedCar === "mater" ? MaterSVG : selectedCar === "theking" ? TheKingSVG : CarSVG;
 
   // Build planned path for arrow overlay
   const plannedCells = [];
