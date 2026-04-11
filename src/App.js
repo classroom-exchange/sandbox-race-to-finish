@@ -287,6 +287,8 @@ export default function App() {
     return pos;
   }
 
+  const controlsRef = useRef(null);
+
   useEffect(() => { if (variation) resetLevel(); }, [levelIdx, varIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function resetLevel() {
@@ -384,6 +386,18 @@ export default function App() {
     window.addEventListener("keydown", onKey);
     return ()=>window.removeEventListener("keydown", onKey);
   }, [running, status, moves, levelIdx, varIdx]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const el = controlsRef.current;
+    if (!el) return;
+    const prevent = (e) => e.preventDefault();
+    el.addEventListener('touchstart', prevent, { passive: false });
+    el.addEventListener('touchmove', prevent, { passive: false });
+    return () => {
+      el.removeEventListener('touchstart', prevent);
+      el.removeEventListener('touchmove', prevent);
+    };
+  }, []);
 
   if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
 
@@ -544,22 +558,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* Arrow buttons + GO together */}
-      <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:12}}>
-        {/* D-pad */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,width:180}}>
-          <div/>
-          <button onClick={()=>addMove(DIRS[0])} disabled={running||!!status} style={arrowBtn(running||!!status)}>⬆️</button>
-          <div/>
-          <button onClick={()=>addMove(DIRS[2])} disabled={running||!!status} style={arrowBtn(running||!!status)}>⬅️</button>
-          <button onClick={()=>addMove(DIRS[1])} disabled={running||!!status} style={arrowBtn(running||!!status)}>⬇️</button>
-          <button onClick={()=>addMove(DIRS[3])} disabled={running||!!status} style={arrowBtn(running||!!status)}>➡️</button>
-        </div>
-        {/* GO button */}
+      {/* GO button */}
+      <div ref={controlsRef} style={{display:"flex",alignItems:"center",gap:16,marginBottom:12,touchAction:"none",userSelect:"none"}}>
         <button onClick={runMoves} disabled={running||!!status||moves.length===0}
           style={{...btnStyle("#ffe066","#1a1a2e",running||!!status||moves.length===0),
             fontSize:"1.2rem", padding:"18px 20px", borderRadius:16,
-            minWidth:80, minHeight:80, lineHeight:1.2}}>
+            minWidth:80, minHeight:80, lineHeight:1.2, touchAction:"none", userSelect:"none"}}>
           {running?"🚗\nDriving...":"🚦\nGO!"}
         </button>
       </div>
