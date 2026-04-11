@@ -76,15 +76,15 @@ function TheKingSVG({ dir = "right", size = 48 }) {
     <svg width={size} height={size} viewBox="0 0 100 70"
       style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
       {/* Rear wing struts */}
-      <line x1="72" y1="25" x2="72" y2="6" stroke="#1E56A0" strokeWidth="2"/>
-      <line x1="78" y1="25" x2="78" y2="6" stroke="#1E56A0" strokeWidth="2"/>
+      <line x1="72" y1="25" x2="72" y2="6" stroke="#87CEEB" strokeWidth="2"/>
+      <line x1="78" y1="25" x2="78" y2="6" stroke="#87CEEB" strokeWidth="2"/>
       {/* Rear wing blade */}
-      <rect x="68" y="5" width="14" height="4" fill="#1E56A0" stroke="#0f3a6e" strokeWidth="0.5"/>
+      <rect x="68" y="5" width="14" height="4" fill="#87CEEB" stroke="#5aaac4" strokeWidth="0.5"/>
       {/* Main body - royal blue */}
-      <path d="M 15,35 L 25,32 L 70,32 L 82,35 L 82,45 L 15,45 Z" fill="#1E56A0" stroke="#0f3a6e" strokeWidth="0.5"/>
+      <path d="M 15,35 L 25,32 L 70,32 L 82,35 L 82,45 L 15,45 Z" fill="#87CEEB" stroke="#5aaac4" strokeWidth="0.5"/>
       {/* Nose cone - long extended */}
-      <polygon points="15,32 8,35 15,38" fill="#1E56A0" stroke="#0f3a6e" strokeWidth="0.5"/>
-      <polygon points="8,35 0,37 8,39" fill="#1a4a8a"/>
+      <polygon points="15,32 8,35 15,38" fill="#87CEEB" stroke="#5aaac4" strokeWidth="0.5"/>
+      <polygon points="8,35 0,37 8,39" fill="#6BB8D4"/>
       {/* White roof section */}
       <path d="M 22,32 L 70,30 L 68,25 L 24,27 Z" fill="white" stroke="#e0e0e0" strokeWidth="0.5"/>
       {/* Windshield - large oval eyes */}
