@@ -182,14 +182,6 @@ function ConeSVG() {
   );
 }
 
-function arrowBtn(disabled) {
-  return {
-    fontSize:"1.8rem", padding:"10px", borderRadius:"12px",
-    background:disabled?"#333":"#0f3460", border:"2px solid "+(disabled?"#444":"#aee4f7"),
-    color:disabled?"#666":"#fff", cursor:disabled?"not-allowed":"pointer",
-    transition:"all 0.15s", boxShadow:disabled?"none":"0 3px 10px #0006"
-  };
-}
 function btnStyle(bg, color, disabled=false) {
   return {
     background:disabled?"#333":bg, color:disabled?"#666":color,
