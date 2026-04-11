@@ -302,6 +302,8 @@ export default function App() {
   // Handle tapping a grid cell
   function handleCellTap(r, c) {
     if (running || status) return;
+    // Don't allow clicking on obstacles
+    if (variation.obstacles.some(o=>o[0]===r&&o[1]===c)) return;
     const planned = getPlannedPos();
     if (!planned) return;
     const dr = r - planned[0];
