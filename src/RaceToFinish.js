@@ -253,7 +253,8 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const [levelIdx, setLevelIdx] = useState(0);
   const [varIdx, setVarIdx] = useState(0);
   const [moves, setMoves] = useState([]);
-  const [carPos, setCarPos] = useState(null);
+  const initialVariation = LEVELS[0].variations[0];
+  const [carPos, setCarPos] = useState(initialCar ? initialVariation.start : null);
   const [carDir, setCarDir] = useState("right");
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState(null);
@@ -403,14 +404,18 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
   // Build planned path for arrow overlay
   const plannedCells = [];
-  let pPos = [...variation.start];
-  for (let i=0; i<moves.length; i++) {
-    const d = moves[i];
-    const next = [pPos[0]+d.dr, pPos[1]+d.dc];
-    if (next[0]<0||next[0]>=GRID||next[1]<0||next[1]>=GRID) break;
-    plannedCells.push({ r:next[0], c:next[1], label:d.label, step:i, isActive:animStep===i });
-    if (variation.obstacles.some(o=>o[0]===next[0]&&o[1]===next[1])) break;
-    pPos = next;
+  if (!variation || !carPos) {
+    // Return empty if no variation or carPos not initialized
+  } else {
+    let pPos = [...variation.start];
+    for (let i=0; i<moves.length; i++) {
+      const d = moves[i];
+      const next = [pPos[0]+d.dr, pPos[1]+d.dc];
+      if (next[0]<0||next[0]>=GRID||next[1]<0||next[1]>=GRID) break;
+      plannedCells.push({ r:next[0], c:next[1], label:d.label, step:i, isActive:animStep===i });
+      if (variation.obstacles.some(o=>o[0]===next[0]&&o[1]===next[1])) break;
+      pPos = next;
+    }
   }
 
   return (
