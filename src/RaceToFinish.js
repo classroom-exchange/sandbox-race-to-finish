@@ -253,7 +253,8 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const [levelIdx, setLevelIdx] = useState(0);
   const [varIdx, setVarIdx] = useState(0);
   const [moves, setMoves] = useState([]);
-  const [carPos, setCarPos] = useState(null);
+  const initialVariation = LEVELS[0].variations[0];
+  const [carPos, setCarPos] = useState(initialCar ? initialVariation.start : null);
   const [carDir, setCarDir] = useState("right");
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState(null);
