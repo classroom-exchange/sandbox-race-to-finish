@@ -125,9 +125,9 @@ function MaterSVG({ dir = "right", size = 48 }) {
 }
 
 const CARS = [
-  { id: "mcqueen", label: "Lightning McQueen", color: "#e8002d", svg: <McQueenSVG /> },
-  { id: "king",    label: "The King",           color: "#87CEEB", svg: <KingSVG /> },
-  { id: "mater",   label: "Mater",              color: "#8B6914", svg: <MaterSVG /> },
+  { id: "mcqueen", label: "Lightning McQueen", color: "#e8002d", svg: <CarSVG dir="right" size={80} /> },
+  { id: "the-king",    label: "The King",           color: "#87CEEB", svg: <TheKingSVG dir="right" size={80} /> },
+  { id: "mater",   label: "Mater",              color: "#8B6914", svg: <MaterSVG dir="right" size={80} /> },
 ];
 
 export default function App() {
