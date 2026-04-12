@@ -264,6 +264,17 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const [touchHint, setTouchHint] = useState(null);
   const runRef = useRef(false);
 
+  useEffect(() => {
+    if (variation) {
+      setCarPos(variation.start);
+      setCarDir('right');
+      setMoves([]);
+      setStatus(null);
+      setTrail([]);
+      setAnimStep(-1);
+    }
+  }, [levelIdx, varIdx]);
+
   const level = LEVELS[levelIdx];
   const variation = level?.variations[varIdx];
 
@@ -560,7 +571,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
       {/* GO button */}
       <div ref={controlsRef} style={{display:"flex",alignItems:"center",gap:16,marginBottom:12,touchAction:"none",userSelect:"none"}}>
-        <button onClick={runMoves} disabled={running||!!status||moves.length===0}
+        <button onClick={runMoves} disabled={running||moves.length===0}
           style={{...btnStyle("#ffe066","#1a1a2e",running||!!status||moves.length===0),
             fontSize:"1.2rem", padding:"18px 20px", borderRadius:16,
             minWidth:80, minHeight:80, lineHeight:1.2, touchAction:"none", userSelect:"none"}}>
