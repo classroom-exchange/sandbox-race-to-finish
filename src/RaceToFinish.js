@@ -408,13 +408,14 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
     // Return empty if no variation or carPos not initialized
   } else {
     let pPos = [...variation.start];
-  for (let i=0; i<moves.length; i++) {
-    const d = moves[i];
-    const next = [pPos[0]+d.dr, pPos[1]+d.dc];
-    if (next[0]<0||next[0]>=GRID||next[1]<0||next[1]>=GRID) break;
-    plannedCells.push({ r:next[0], c:next[1], label:d.label, step:i, isActive:animStep===i });
-    if (variation.obstacles.some(o=>o[0]===next[0]&&o[1]===next[1])) break;
-    pPos = next;
+    for (let i=0; i<moves.length; i++) {
+      const d = moves[i];
+      const next = [pPos[0]+d.dr, pPos[1]+d.dc];
+      if (next[0]<0||next[0]>=GRID||next[1]<0||next[1]>=GRID) break;
+      plannedCells.push({ r:next[0], c:next[1], label:d.label, step:i, isActive:animStep===i });
+      if (variation.obstacles.some(o=>o[0]===next[0]&&o[1]===next[1])) break;
+      pPos = next;
+    }
   }
 
   return (
