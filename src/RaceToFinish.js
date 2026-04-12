@@ -404,7 +404,10 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
   // Build planned path for arrow overlay
   const plannedCells = [];
-  let pPos = [...variation.start];
+  if (!variation || !carPos) {
+    // Return empty if no variation or carPos not initialized
+  } else {
+    let pPos = [...variation.start];
   for (let i=0; i<moves.length; i++) {
     const d = moves[i];
     const next = [pPos[0]+d.dr, pPos[1]+d.dc];
