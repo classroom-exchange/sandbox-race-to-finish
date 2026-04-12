@@ -264,6 +264,17 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const [touchHint, setTouchHint] = useState(null);
   const runRef = useRef(false);
 
+  useEffect(() => {
+    if (variation) {
+      setCarPos(variation.start);
+      setCarDir('right');
+      setMoves([]);
+      setStatus(null);
+      setTrail([]);
+      setAnimStep(-1);
+    }
+  }, [levelIdx, varIdx]);
+
   const level = LEVELS[levelIdx];
   const variation = level?.variations[varIdx];
 
