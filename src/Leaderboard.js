@@ -16,65 +16,64 @@ export default function Leaderboard({ onBack }) {
       .catch(err => { setError(err.message); setLoading(false); });
   }, [levelIdx, varIdx]);
 
-  const overlayStyle = {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.7)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+  const containerStyle = {
+    background: '#1a1a2e', minHeight: '100vh', display: 'flex',
+    flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
+    padding: '32px 16px', color: 'white', fontFamily: 'Arial, sans-serif'
   };
-  const cardStyle = {
-    background: '#fff', borderRadius: 12, padding: 24,
-    maxWidth: 400, width: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+  const headerStyle = { color: '#FFD700', fontSize: 28, fontWeight: 'bold', marginBottom: 24 };
+  const selectStyle = {
+    background: '#2a2a4e', color: 'white', border: '1px solid #FFD700',
+    borderRadius: 6, padding: '4px 8px', margin: '0 8px', fontSize: 14
   };
-  const titleStyle = {
-    textAlign: 'center', fontSize: 22, fontWeight: 'bold',
-    marginBottom: 16, color: '#333',
-  };
-  const tableStyle = { width: '100%', borderCollapse: 'collapse', marginBottom: 16 };
-  const thStyle = {
-    background: '#333', color: '#FFD700', padding: '8px 12px',
-    textAlign: 'left', fontWeight: 'bold', fontSize: 13,
-  };
-  const closeBtnStyle = {
-    display: 'block', margin: '0 auto', background: '#e74c3c',
-    color: '#fff', border: 'none', borderRadius: 20,
-    padding: '10px 28px', fontWeight: 'bold', fontSize: 15,
-    cursor: 'pointer',
+  const tableStyle = { width: '100%', maxWidth: 460, borderCollapse: 'collapse', marginTop: 16 };
+  const thStyle = { color: '#FFD700', padding: '8px 12px', borderBottom: '2px solid #FFD700', textAlign: 'left' };
+  const tdStyle = { padding: '8px 12px', borderBottom: '1px solid #333' };
+  const backBtnStyle = {
+    marginTop: 32, background: '#2a2a4e', color: 'white', border: 'none',
+    borderRadius: 8, padding: '10px 28px', fontSize: 16, cursor: 'pointer'
   };
 
   return (
-    <div style={overlayStyle}>
-      <div style={cardStyle}>
-        <div style={titleStyle}>🏆 Leaderboard — Level {level}.{variation}</div>
-        {loading && <div style={{ textAlign: 'center', padding: 20 }}>Loading...</div>}
-        {error && <div style={{ color: 'red', textAlign: 'center' }}>Error: {error}</div>}
-        {!loading && !error && (
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Rank</th>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Moves</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scores.length === 0 && (
-                <tr><td colSpan={3} style={{ textAlign: 'center', padding: 16, color: '#888' }}>No scores yet!</td></tr>
-              )}
-              {scores.map((s, i) => (
-                <tr key={i} style={{
-                  background: i % 2 === 0 ? '#f9f9f9' : '#fff',
-                  borderLeft: i === 0 ? '4px solid #FFD700' : '4px solid transparent',
-                }}>
-                  <td style={{ padding: '7px 12px', fontWeight: i === 0 ? 'bold' : 'normal' }}>{i + 1}</td>
-                  <td style={{ padding: '7px 12px' }}>{s.player_name}</td>
-                  <td style={{ padding: '7px 12px' }}>{s.moves_used}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <button style={closeBtnStyle} onClick={onClose}>Close</button>
+    <div style={containerStyle}>
+      <div style={headerStyle}>🏆 Leaderboard</div>
+      <div style={{ marginBottom: 16 }}>
+        <label>Level:
+          <select style={selectStyle} value={levelIdx} onChange={e => setLevelIdx(Number(e.target.value))}>
+            {[1,2,3].map((l,i) => <option key={i} value={i}>Level {l}</option>)}
+          </select>
+        </label>
+        <label>Variation:
+          <select style={selectStyle} value={varIdx} onChange={e => setVarIdx(Number(e.target.value))}>
+            {[1,2,3,4].map((v,i) => <option key={i} value={i}>Var {v}</option>)}
+          </select>
+        </label>
       </div>
+      {loading && <div>Loading...</div>}
+      {error && <div style={{ color: '#ff6b6b' }}>Error: {error}</div>}
+      {!loading && !error && (
+        scores.length === 0
+          ? <div style={{ color: '#aaa', marginTop: 24 }}>No scores yet — be the first!</div>
+          : <table style={tableStyle}>
+              <thead><tr>
+                <th style={thStyle}>Rank</th>
+                <th style={thStyle}>Player</th>
+                <th style={thStyle}>Moves</th>
+                <th style={thStyle}>Date</th>
+              </tr></thead>
+              <tbody>
+                {scores.map((s, i) => (
+                  <tr key={i} style={i === 0 ? { fontWeight: 'bold', color: '#FFD700' } : {}}>
+                    <td style={tdStyle}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i+1}</td>
+                    <td style={tdStyle}>{s.player_name}</td>
+                    <td style={tdStyle}>{s.move_count}</td>
+                    <td style={tdStyle}>{new Date(s.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+      )}
+      <button style={backBtnStyle} onClick={onBack}>← Back to Menu</button>
     </div>
   );
 }
