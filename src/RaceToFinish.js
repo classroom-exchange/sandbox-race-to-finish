@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { submitScore } from './leaderboardApi';
+import Leaderboard from './Leaderboard';
 
 const WINS_NEEDED = 2;
 const GRID = 5;
@@ -253,6 +255,9 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const [levelIdx, setLevelIdx] = useState(0);
   const [varIdx, setVarIdx] = useState(0);
   const [moves, setMoves] = useState([]);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [playerName, setPlayerName] = useState('');
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const initialVariation = LEVELS[0].variations[0];
   const [carPos, setCarPos] = useState(initialCar ? initialVariation.start : null);
   const [carDir, setCarDir] = useState("right");
@@ -272,6 +277,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       setStatus(null);
       setTrail([]);
       setAnimStep(-1);
+      setScoreSubmitted(false);
     }
   }, [levelIdx, varIdx]);
 
@@ -365,6 +371,11 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       const newCount = Math.min(winCounts[levelIdx]+1, WINS_NEEDED);
       setWinCounts(w=>{ const n=[...w]; n[levelIdx]=newCount; return n; });
       setStatus("win");
+      // Submit score on win
+      if (playerName.trim()) {
+        submitScore(playerName.trim(), levelIdx + 1, varIdx + 1, moves.length)
+          .then(() => setScoreSubmitted(true));
+      }
     } else { setStatus("miss"); }
     setRunning(false);
   }
@@ -578,6 +589,50 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
           {running?"🚗\nDriving...":"🚦\nGO!"}
         </button>
       </div>
+
+      {/* Leaderboard UI on win */}
+      {status === 'win' && (
+        <div style={{ marginTop: 12, textAlign: 'center' }}>
+          <input
+            type="text"
+            placeholder="Your name"
+            value={playerName}
+            onChange={e => setPlayerName(e.target.value)}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 8,
+              border: '2px solid #FFD700',
+              marginBottom: 8,
+              fontSize: 14,
+              display: 'block',
+              margin: '0 auto 8px',
+              width: 160,
+            }}
+          />
+          <button
+            onClick={() => {
+              if (playerName.trim() && !scoreSubmitted) {
+                submitScore(playerName.trim(), levelIdx + 1, varIdx + 1, moves.length)
+                  .then(() => setScoreSubmitted(true));
+              }
+              setShowLeaderboard(true);
+            }}
+            style={{
+              background: '#FFD700',
+              color: '#333',
+              border: 'none',
+              borderRadius: 20,
+              padding: '8px 20px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            🏆 Leaderboard
+          </button>
+          {scoreSubmitted && <div style={{ fontSize: 12, color: 'green', marginTop: 4 }}>Score saved!</div>}
+        </div>
+      )}
 
       {/* Undo / Clear */}
       <div style={{display:"flex",gap:12,marginBottom:4}}>
