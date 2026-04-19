@@ -12,29 +12,42 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * @param {number} movesUsed
  * @returns {Promise<{data, error}>}
  */
-export async function submitScore(playerName, level, variation, movesUsed) {
-  return supabase.from('leaderboard').insert([
-    {
+/**
+ * Submit a score to the leaderboard.
+ * @param {string} playerName
+ * @param {number} levelIdx (0-2)
+ * @param {number} varIdx (0-3)
+ * @param {number} moveCount
+ * @returns {Promise<{data, error}>}
+ */
+export async function submitScore({ playerName, levelIdx, varIdx, moveCount }) {
+  const { data, error } = await supabase
+    .from('leaderboard')
+    .insert([{
       player_name: playerName,
-      level: level,
-      variation: variation,
-      moves_used: movesUsed,
-    },
-  ]);
+      level_idx: levelIdx,
+      var_idx: varIdx,
+      move_count: moveCount,
+    }]);
+  if (error) throw error;
+  return data;
 }
 
 /**
- * Fetch top 10 scores for a given level and variation (fewest moves = best).
- * @param {number} level
- * @param {number} variation
- * @returns {Promise<{data, error}>}
+ * Fetch top scores for a given level and variation (fewest moves = best).
+ * @param {number} levelIdx (0-2)
+ * @param {number} varIdx (0-3)
+ * @param {number} limit
+ * @returns {Promise<Array>}
  */
-export async function fetchLeaderboard(level, variation) {
-  return supabase
+export async function fetchTopScores({ levelIdx, varIdx, limit = 10 }) {
+  const { data, error } = await supabase
     .from('leaderboard')
-    .select('player_name, moves_used, completed_at')
-    .eq('level', level)
-    .eq('variation', variation)
-    .order('moves_used', { ascending: true })
-    .limit(10);
+    .select('player_name, move_count, created_at')
+    .eq('level_idx', levelIdx)
+    .eq('var_idx', varIdx)
+    .order('move_count', { ascending: true })
+    .limit(limit);
+  if (error) throw error;
+  return data;
 }
