@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { fetchLeaderboard } from './leaderboardApi';
+import React, { useState, useEffect } from 'react';
+import { fetchTopScores } from './leaderboardApi';
 
 export default function Leaderboard({ level, variation, onClose }) {
   const [scores, setScores] = useState([]);
