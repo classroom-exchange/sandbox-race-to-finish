@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchTopScores } from './leaderboardApi';
 
-export default function Leaderboard({ level, variation, onClose }) {
+export default function Leaderboard({ onBack }) {
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
