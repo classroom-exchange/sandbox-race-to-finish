@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { fetchTopScores } from './leaderboardApi';
 
 export default function Leaderboard({ onBack }) {
+  const [levelIdx, setLevelIdx] = useState(0);
+  const [varIdx, setVarIdx] = useState(0);
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchLeaderboard(level, variation)
-      .then(({ data, error }) => {
-        if (error) setError(error.message);
-        else setScores(data || []);
-        setLoading(false);
-      });
-  }, [level, variation]);
+    setLoading(true);
+    setError(null);
+    fetchTopScores({ levelIdx, varIdx })
+      .then(data => { setScores(data || []); setLoading(false); })
+      .catch(err => { setError(err.message); setLoading(false); });
+  }, [levelIdx, varIdx]);
 
   const overlayStyle = {
     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
