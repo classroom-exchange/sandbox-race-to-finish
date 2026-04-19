@@ -7,14 +7,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 /**
  * Submit a score to the leaderboard.
  * @param {string} playerName
- * @param {number} level  (1-3)
- * @param {number} variation (1-4)
- * @param {number} movesUsed
- * @returns {Promise<{data, error}>}
- */
-/**
- * Submit a score to the leaderboard.
- * @param {string} playerName
  * @param {number} levelIdx (0-2)
  * @param {number} varIdx (0-3)
  * @param {number} moveCount
