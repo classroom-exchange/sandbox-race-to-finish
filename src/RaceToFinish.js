@@ -187,7 +187,7 @@ function btnStyle(bg, color, disabled=false) {
     background:disabled?"#333":bg, color:disabled?"#666":color,
     border:"none", borderRadius:"12px", padding:"10px 20px",
     fontSize:"1rem", fontWeight:"bold", cursor:disabled?"not-allowed":"pointer",
-    transition:"all 0.15s", boxShadow:disabled?"none":"0 3px 10px #0006"
+    transition:"all 0.15s", boxShadow:disabled?"none":"0 0 0 4px #FFD700, 0 3px 10px #0006"
   };
 }
 
