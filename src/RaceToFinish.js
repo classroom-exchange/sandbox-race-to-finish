@@ -373,7 +373,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       setStatus("win");
       // Submit score on win
       if (playerName.trim()) {
-        submitScore(playerName.trim(), levelIdx + 1, varIdx + 1, moveQueue.length)
+        submitScore(playerName.trim(), levelIdx + 1, varIdx + 1, moves.length)
           .then(() => setScoreSubmitted(true));
       }
     } else { setStatus("miss"); }
@@ -591,7 +591,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       </div>
 
       {/* Leaderboard UI on win */}
-      {gameState === 'win' && (
+      {status === 'win' && (
         <div style={{ marginTop: 12, textAlign: 'center' }}>
           <input
             type="text"
@@ -612,7 +612,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
           <button
             onClick={() => {
               if (playerName.trim() && !scoreSubmitted) {
-                submitScore(playerName.trim(), levelIdx + 1, varIdx + 1, moveQueue.length)
+                submitScore(playerName.trim(), levelIdx + 1, varIdx + 1, moves.length)
                   .then(() => setScoreSubmitted(true));
               }
               setShowLeaderboard(true);
