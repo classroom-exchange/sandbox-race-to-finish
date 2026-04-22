@@ -413,6 +413,14 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const plannedPos = getPlannedPos();
   const VehicleSVG = selectedCar === "mater" ? MaterSVG : selectedCar === "the-king" ? TheKingSVG : CarSVG;
 
+
+  // Auto-start when last move is placed (moves reach max 12)
+  useEffect(() => {
+    if (moves.length === 12 && !running && !status) {
+      runMoves();
+    }
+  }, [moves.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Build planned path for arrow overlay
   const plannedCells = [];
   if (!variation || !carPos) {
@@ -571,7 +579,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
       {/* GO button */}
       <div ref={controlsRef} style={{display:"flex",alignItems:"center",gap:16,marginBottom:12,touchAction:"none",userSelect:"none"}}>
-        <button onClick={runMoves} disabled={running||moves.length===0}
+        <button onClick={runMoves} disabled={running||moves.length===0||!!status}
           style={{...btnStyle("#ffe066","#1a1a2e",running||!!status||moves.length===0),
             fontSize:"1.2rem", padding:"18px 20px", borderRadius:16,
             minWidth:80, minHeight:80, lineHeight:1.2, touchAction:"none", userSelect:"none"}}>
