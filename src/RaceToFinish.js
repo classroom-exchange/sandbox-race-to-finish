@@ -405,14 +405,6 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
     };
   }, []);
 
-  if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
-
-  const currentWins = winCounts[levelIdx];
-  const mastered = currentWins >= WINS_NEEDED;
-  const cellSize = 72;
-  const plannedPos = getPlannedPos();
-  const VehicleSVG = selectedCar === "mater" ? MaterSVG : selectedCar === "the-king" ? TheKingSVG : CarSVG;
-
 
   // Auto-start when last move is placed (moves reach max 12)
   useEffect(() => {
@@ -420,6 +412,14 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       runMoves();
     }
   }, [moves.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
+
+  const currentWins = winCounts[levelIdx];
+  const mastered = currentWins >= WINS_NEEDED;
+  const cellSize = 72;
+  const plannedPos = getPlannedPos();
+  const VehicleSVG = selectedCar === "mater" ? MaterSVG : selectedCar === "the-king" ? TheKingSVG : CarSVG;
 
   // Build planned path for arrow overlay
   const plannedCells = [];
