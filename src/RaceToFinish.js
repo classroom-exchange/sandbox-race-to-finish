@@ -560,7 +560,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
       {/* Code queue */}
       <div style={{width:"100%",maxWidth:380,marginBottom:12}}>
-        <div style={{color:"#aee4f7",fontWeight:"bold",fontSize:"0.95rem",marginBottom:6,textAlign:"center"}}>
+        <div style={{color:"#1a73e8",fontWeight:"bold",fontSize:"0.95rem",marginBottom:6,textAlign:"center"}}>
           📋 Your Code ({moves.length}/12) <span style={{fontWeight:"normal",fontSize:"0.8rem",color:"#ffffff66"}}>· Arrows / Enter / Backspace</span>
         </div>
         <div style={{minHeight:48,background:"#ffffff18",borderRadius:12,padding:"8px 10px",
