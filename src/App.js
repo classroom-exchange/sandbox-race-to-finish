@@ -124,18 +124,92 @@ function MaterSVG({ dir = "right", size = 48 }) {
   );
 }
 
+// Doc Hudson — 1951 Hudson Hornet (dark blue-grey classic racer)
+function DocHudsonSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 90 55"
+      style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      <path d="M12,35 Q14,20 28,18 L62,18 Q74,20 76,35 L76,45 L12,45 Z" fill="#2c3e6e"/>
+      <path d="M28,18 Q30,10 38,9 L52,9 Q60,10 62,18 Z" fill="#263360"/>
+      <path d="M32,17 Q33,11 40,10 L50,10 Q56,11 58,17 Z" fill="#aee4f7" opacity="0.8"/>
+      <rect x="35" y="21" width="8" height="7" rx="2" fill="white"/>
+      <rect x="47" y="21" width="8" height="7" rx="2" fill="white"/>
+      <rect x="36" y="22" width="5" height="5" rx="1" fill="#3a5fc0"/>
+      <rect x="48" y="22" width="5" height="5" rx="1" fill="#3a5fc0"/>
+      <circle cx="38" cy="24" r="1.5" fill="black"/>
+      <circle cx="50" cy="24" r="1.5" fill="black"/>
+      <circle cx="37" cy="23" r="0.7" fill="white"/>
+      <circle cx="49" cy="23" r="0.7" fill="white"/>
+      <text x="44" y="40" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#aee4f7" fontFamily="Arial">51</text>
+      <rect x="12" y="34" width="6" height="8" rx="1" fill="#c0c0c0"/>
+      <line x1="13" y1="36" x2="17" y2="36" stroke="#888" strokeWidth="1"/>
+      <line x1="13" y1="38" x2="17" y2="38" stroke="#888" strokeWidth="1"/>
+      <line x1="13" y1="40" x2="17" y2="40" stroke="#888" strokeWidth="1"/>
+      <circle cx="25" cy="46" r="7" fill="#222"/><circle cx="25" cy="46" r="3.5" fill="#777"/>
+      <circle cx="65" cy="46" r="7" fill="#222"/><circle cx="65" cy="46" r="3.5" fill="#777"/>
+      <ellipse cx="9" cy="36" rx="3" ry="2.5" fill="#ffe066"/>
+      <polygon points="76,30 80,26 80,35 76,35" fill="#253055"/>
+    </svg>
+  );
+}
+
+// Cruz Ramirez — modern yellow sports car (#78)
+function CruzRamirezSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 50"
+      style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      <path d="M10,32 Q12,22 24,20 L56,20 Q68,22 70,32 L70,42 L10,42 Z" fill="#f5c518"/>
+      <path d="M24,20 Q26,13 36,12 L50,12 Q58,13 56,20 Z" fill="#e0b015"/>
+      <path d="M28,19 Q29,13 37,12 L49,12 Q55,13 54,19 Z" fill="#aee4f7" opacity="0.85"/>
+      <ellipse cx="34" cy="24" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="50" cy="24" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="35" cy="24.5" rx="3.5" ry="4" fill="#c0392b"/>
+      <ellipse cx="51" cy="24.5" rx="3.5" ry="4" fill="#c0392b"/>
+      <circle cx="36" cy="23.5" r="1.3" fill="black"/>
+      <circle cx="52" cy="23.5" r="1.3" fill="black"/>
+      <circle cx="35" cy="22.5" r="0.7" fill="white"/>
+      <circle cx="51" cy="22.5" r="0.7" fill="white"/>
+      <text x="40" y="36" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#333" fontFamily="Arial">78</text>
+      <circle cx="20" cy="43" r="7" fill="#222"/><circle cx="20" cy="43" r="3.5" fill="#888"/>
+      <circle cx="60" cy="43" r="7" fill="#222"/><circle cx="60" cy="43" r="3.5" fill="#888"/>
+      <ellipse cx="70" cy="30" rx="4" ry="2.5" fill="#ffe066"/>
+      <line x1="15" y1="32" x2="65" y2="32" stroke="#e0b015" strokeWidth="1.5" opacity="0.5"/>
+    </svg>
+  );
+}
+
 const CARS = [
-  { id: "mcqueen", label: "Lightning McQueen", color: "#e8002d", svg: <CarSVG dir="right" size={80} /> },
-  { id: "the-king",    label: "The King",           color: "#87CEEB", svg: <TheKingSVG dir="right" size={80} /> },
-  { id: "mater",   label: "Mater",              color: "#8B6914", svg: <MaterSVG dir="right" size={80} /> },
+  { id: "mcqueen",    label: "McQueen",     color: "#e8002d", unlockLevel: 0, svg: <CarSVG dir="right" size={72} /> },
+  { id: "mater",      label: "Mater",       color: "#8B6914", unlockLevel: 0, svg: <MaterSVG dir="right" size={72} /> },
+  { id: "the-king",   label: "The King",    color: "#87CEEB", unlockLevel: 2, svg: <TheKingSVG dir="right" size={72} /> },
+  { id: "doc-hudson", label: "Doc Hudson",  color: "#2c3e6e", unlockLevel: 4, svg: <DocHudsonSVG dir="right" size={72} /> },
+  { id: "cruz",       label: "Cruz",        color: "#f5c518", unlockLevel: 6, svg: <CruzRamirezSVG dir="right" size={72} /> },
 ];
 
 export default function App() {
   const [screen, setScreen] = useState("menu"); // menu | race | code
-  const [car, setCar] = useState(null);
+  const [unlockedCars, setUnlockedCars] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')) || ['mcqueen','mater']; }
+    catch { return ['mcqueen','mater']; }
+  });
+  const [car, setCar] = useState(() => {
+    try { return localStorage.getItem('race-to-finish-selected-car') || null; }
+    catch { return null; }
+  });
+  const selectCar = (id) => {
+    setCar(id);
+    try { localStorage.setItem('race-to-finish-selected-car', id); } catch {}
+  };
 
   if (screen === "race") {
-    return <RaceToFinish car={car} onBack={() => setScreen("menu")} />;
+    return <RaceToFinish car={car} onBack={() => {
+      try { const u = JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')); if (u) setUnlockedCars(u); } catch {}
+      setScreen("menu");
+    }} />;
   }
   if (screen === "code") {
     return <CodeTheCourse car={car} onBack={() => setScreen("menu")} />;
@@ -188,25 +262,35 @@ export default function App() {
         <div style={{ color: "#aee4f7", fontSize: "0.85rem", fontWeight: 600, marginBottom: 14, textAlign: "center" }}>
           CHOOSE YOUR CAR
         </div>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           {CARS.map(c => {
             const selected = car === c.id;
+            const isUnlocked = unlockedCars.includes(c.id);
             return (
-              <div key={c.id} onClick={() => setCar(c.id)} style={{
+              <div key={c.id} onClick={() => isUnlocked && selectCar(c.id)} style={{
                 background: selected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
                 border: selected ? `3px solid ${c.color}` : "2px solid rgba(255,255,255,0.1)",
                 borderRadius: 14,
-                padding: "14px 16px",
-                cursor: "pointer",
+                padding: "12px 14px",
+                cursor: isUnlocked ? "pointer" : "not-allowed",
                 textAlign: "center",
                 boxShadow: selected ? `0 0 18px ${c.color}66` : "none",
                 transition: "all 0.2s",
-                minWidth: 100,
+                minWidth: 88,
+                filter: isUnlocked ? "none" : "grayscale(1)",
+                opacity: isUnlocked ? 1 : 0.55,
+                position: "relative",
               }}>
                 {c.svg}
+                {!isUnlocked && (
+                  <div style={{ position: "absolute", top: 6, right: 8, fontSize: "1rem" }}>🔒</div>
+                )}
                 <div style={{ color: selected ? "#ffe066" : "#aee4f7", fontSize: "0.75rem", marginTop: 6, fontWeight: selected ? 700 : 400 }}>
                   {c.label}
                 </div>
+                {!isUnlocked && (
+                  <div style={{ color: "#ffffff55", fontSize: "0.62rem", marginTop: 2 }}>Level {c.unlockLevel}+</div>
+                )}
               </div>
             );
           })}
