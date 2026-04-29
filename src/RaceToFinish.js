@@ -518,6 +518,15 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
     };
   }, []);
 
+  // Auto-start: when the drawn path reaches the flag, car starts automatically.
+  // Replaces the removed GO button.
+  useEffect(() => {
+    if (!running && !status && moves.length > 0 && plannedPos &&
+        plannedPos[0] === variation.end[0] && plannedPos[1] === variation.end[1]) {
+      runMoves();
+    }
+  }, [plannedPos, moves, running, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
 
   const currentWins = winCounts[levelIdx];
