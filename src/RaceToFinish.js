@@ -347,6 +347,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   });
   const [showUnlock, setShowUnlock] = useState(null);
   const [showCollection, setShowCollection] = useState(false);
+  const [showGoPopup, setShowGoPopup] = useState(false);
   const runRef = useRef(false);
 
   useEffect(() => {
@@ -446,7 +447,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   async function runMoves(movesArg) {
     const movesToRun = movesArg !== undefined ? movesArg : moves;
     if (running || movesToRun.length===0) return;
-    setRunning(true); runRef.current = true;
+    setRunning(true); setShowGoPopup(true); runRef.current = true;
     let pos = [...variation.start];
     setCarPos([...pos]); setTrail([]);
 
@@ -527,6 +528,13 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
     }
   }, [plannedPos, moves, running, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-dismiss GO! popup after 1 second
+  useEffect(() => {
+    if (!showGoPopup) return;
+    const timer = setTimeout(() => setShowGoPopup(false), 1000);
+    return () => clearTimeout(timer);
+  }, [showGoPopup]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
 
   const currentWins = winCounts[levelIdx];
@@ -553,6 +561,12 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
   return (
     <div style={{position:"relative",minHeight:"100vh",background:"linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)",display:"flex",flexDirection:"column",alignItems:"center",padding:"16px",fontFamily:"'Segoe UI',Arial,sans-serif"}}>
+      {showGoPopup && (
+        <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,pointerEvents:"none"}}>
+          <style>{"@keyframes goPopIn{0%{transform:scale(0.5);opacity:0.7}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}"}</style>
+          <span style={{fontSize:"5rem",fontWeight:"bold",color:"#FFD700",animation:"goPopIn 0.3s ease-out forwards",textShadow:"0 4px 20px rgba(255,215,0,0.6)"}}>GO!</span>
+        </div>
+      )}
       {showUnlock && <UnlockModal char={showUnlock} onClose={()=>setShowUnlock(null)}/>}
       {showCollection && <CollectionModal chars={CHARACTERS} unlocked={unlockedChars} onClose={()=>setShowCollection(false)}/>}
 
