@@ -479,6 +479,19 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       const newCount = Math.min(winCounts[levelIdx]+1, WINS_NEEDED);
       setWinCounts(w=>{ const n=[...w]; n[levelIdx]=newCount; return n; });
       setStatus("win");
+      // Car unlock — write to localStorage when a level is mastered for the first time
+      try {
+        const _base = JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')) || ['mcqueen','mater'];
+        const _lvl = levelIdx + 1; // 1-based
+        const _extra = [];
+        if (newCount >= WINS_NEEDED) {
+          if (_lvl >= 2) _extra.push('the-king');
+          if (_lvl >= 4) _extra.push('doc-hudson');
+          if (_lvl >= 6) _extra.push('cruz');
+        }
+        if (_extra.some(id => !_base.includes(id)))
+          localStorage.setItem('race-to-finish-unlocked-cars', JSON.stringify([...new Set([..._base, ..._extra])]));
+      } catch {}
     } else { setStatus("miss"); }
     setRunning(false);
   }
