@@ -325,7 +325,8 @@ export default function App() {
 
       {!car && (
         <div style={{ color: "#ffffff55", fontSize: "0.85rem", marginTop: 16 }}>
-          ↑ Select a car to start
+          <div style={{position:"fixed",bottom:8,right:12,color:"rgba(255,255,255,0.2)",fontSize:"0.65rem",fontFamily:"monospace",pointerEvents:"none",userSelect:"none"}}>v1.0</div>
+      ↑ Select a car to start
         </div>
       )}
     </div>
