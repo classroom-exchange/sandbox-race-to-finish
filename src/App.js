@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RaceToFinish from "./RaceToFinish";
 import CodeTheCourse from "./CodeTheCourse";
 
@@ -185,9 +185,9 @@ function CruzRamirezSVG({ dir = "right", size = 48 }) {
 const CARS = [
   { id: "mcqueen",    label: "McQueen",     color: "#e8002d", unlockLevel: 0, svg: <CarSVG dir="right" size={72} /> },
   { id: "mater",      label: "Mater",       color: "#8B6914", unlockLevel: 0, svg: <MaterSVG dir="right" size={72} /> },
-  { id: "the-king",   label: "The King",    color: "#87CEEB", unlockLevel: 2, svg: <TheKingSVG dir="right" size={72} /> },
-  { id: "doc-hudson", label: "Doc Hudson",  color: "#2c3e6e", unlockLevel: 4, svg: <DocHudsonSVG dir="right" size={72} /> },
-  { id: "cruz",       label: "Cruz",        color: "#f5c518", unlockLevel: 6, svg: <CruzRamirezSVG dir="right" size={72} /> },
+  { id: "the-king",   label: "The King",    color: "#87CEEB", unlockLevel: 1, svg: <TheKingSVG dir="right" size={72} /> },
+  { id: "doc-hudson", label: "Doc Hudson",  color: "#2c3e6e", unlockLevel: 3, svg: <DocHudsonSVG dir="right" size={72} /> },
+  { id: "cruz",       label: "Cruz",        color: "#f5c518", unlockLevel: 5, svg: <CruzRamirezSVG dir="right" size={72} /> },
 ];
 
 export default function App() {
@@ -204,6 +204,16 @@ export default function App() {
     setCar(id);
     try { localStorage.setItem('race-to-finish-selected-car', id); } catch {}
   };
+
+  // Re-sync unlocked cars from localStorage whenever we return to main menu
+  useEffect(() => {
+    if (screen === 'menu') {
+      try {
+        const u = JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars'));
+        if (u) setUnlockedCars(u);
+      } catch {}
+    }
+  }, [screen]);
 
   if (screen === "race") {
     return <RaceToFinish car={car} onBack={() => {
@@ -267,7 +277,7 @@ export default function App() {
             const selected = car === c.id;
             const isUnlocked = unlockedCars.includes(c.id);
             return (
-              <div key={c.id} onClick={() => isUnlocked && selectCar(c.id)} style={{
+              <div key={c.id} onClick={() => { if (isUnlocked) { selectCar(c.id); setScreen("race"); } }} style={{
                 background: selected ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
                 border: selected ? `3px solid ${c.color}` : "2px solid rgba(255,255,255,0.1)",
                 borderRadius: 14,
@@ -325,9 +335,12 @@ export default function App() {
 
       {!car && (
         <div style={{ color: "#ffffff55", fontSize: "0.85rem", marginTop: 16 }}>
-          ↑ Select a car to start
+          <div style={{position:"fixed",bottom:8,right:12,color:"rgba(255,255,255,0.2)",fontSize:"0.65rem",fontFamily:"monospace",pointerEvents:"none",userSelect:"none"}}>v1.0</div>
+      <div style={{position:"fixed",bottom:8,right:12,color:"rgba(255,255,255,0.2)",fontSize:"0.65rem",fontFamily:"monospace",pointerEvents:"none",userSelect:"none"}}>v1.0</div>
+        ↑ Select a car to start
         </div>
       )}
     </div>
   );
 }
+
