@@ -81,6 +81,65 @@ function getTrackArrow(trackPath, idx) {
 }
 function isHorizontalArrow(arrow) { return arrow === "→" || arrow === "←"; }
 
+const TurnArrow = ({ fromDir, toDir, size = 36 }) => {
+  const s = size;
+  const h = s / 2;
+  const paths = {
+    'right-down':  `M${s},${h} L${h},${h} L${h},${s}`,
+    'right-up':    `M${s},${h} L${h},${h} L${h},0`,
+    'left-down':   `M0,${h} L${h},${h} L${h},${s}`,
+    'left-up':     `M0,${h} L${h},${h} L${h},0`,
+    'down-right':  `M${h},${s} L${h},${h} L${s},${h}`,
+    'down-left':   `M${h},${s} L${h},${h} L0,${h}`,
+    'up-right':    `M${h},0 L${h},${h} L${s},${h}`,
+    'up-left':     `M${h},0 L${h},${h} L0,${h}`,
+  };
+  const key = `${fromDir}-${toDir}`;
+  const d = paths[key] || '';
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{display:'block'}}>
+      <defs>
+        <marker id={`arr-${key}`} markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#ffe066" />
+        </marker>
+      </defs>
+      <path d={d} fill="none" stroke="#ffe066" strokeWidth="3"
+        markerEnd={`url(#arr-${key})`} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+function buildSlotMap(slots, startCell, startDir) {
+  const dirDeltas = { right: [1,0], left: [-1,0], down: [0,1], up: [0,-1] };
+  let pos = { ...(startCell || { x: 0, y: 0 }) };
+  let dir = startDir || 'right';
+  const map = {};
+  for (const slot of slots) {
+    if (!slot || !slot.cmdId) {
+      map[slot.id] = { type: 'gap', cell: { ...pos }, fromDir: dir, toDir: dir };
+      continue;
+    }
+    const cmd = slot.cmdId;
+    if (cmd === 'forward') {
+      const [dx, dy] = dirDeltas[dir] || [1, 0];
+      const dest = { x: pos.x + dx, y: pos.y + dy };
+      map[slot.id] = { type: 'forward', cell: dest, fromDir: dir, toDir: dir };
+      pos = dest;
+    } else if (cmd === 'turnLeft') {
+      const turns = { right: 'up', up: 'left', left: 'down', down: 'right' };
+      const newDir = turns[dir] || dir;
+      map[slot.id] = { type: 'turn', cell: { ...pos }, fromDir: dir, toDir: newDir };
+      dir = newDir;
+    } else if (cmd === 'turnRight') {
+      const turns = { right: 'down', down: 'left', left: 'up', up: 'right' };
+      const newDir = turns[dir] || dir;
+      map[slot.id] = { type: 'turn', cell: { ...pos }, fromDir: dir, toDir: newDir };
+      dir = newDir;
+    }
+  }
+  return map;
+}
+
+};
+
 // ── Level definitions ─────────────────────────────────────────────────────────
 // All trackPaths use {x:col, y:row}. startDir: "right"|"left"|"up"|"down"
 const LEVELS = [
@@ -199,7 +258,23 @@ export default function CodeTheCourse({ car, onBack }) {
   const [stars, setStars]           = useState(()=>JSON.parse(localStorage.getItem("ctc_stars")||"[]"));
   const [activeStep, setActiveStep] = useState(-1);
   const [animCell, setAnimCell]     = useState(null);
+  const [showGoOverlay, setShowGoOverlay] = useState(false);
   const runRef = useRef(false);
+
+  const sequence = slots.filter(s=>s.cmdId).map(s=>s.cmdId);
+  const allFilled = !slots.some(s=>s.locked&&!s.cmdId) && sequence.length>0;
+
+  // Auto-run when all slots filled
+  useEffect(() => {
+    if (allFilled && status === 'idle') {
+      const t1 = setTimeout(() => setShowGoOverlay(true), 200);
+      const t2 = setTimeout(() => {
+        setShowGoOverlay(false);
+        runSequence();
+      }, 1200);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [allFilled, status]);
 
   const level = LEVELS[levelIndex];
 
@@ -246,9 +321,6 @@ export default function CodeTheCourse({ car, onBack }) {
     if(status==="running") return;
     setSlots(buildSlots(level.scaffold));
   }
-
-  const sequence = slots.filter(s=>s.cmdId).map(s=>s.cmdId);
-  const allFilled = !slots.some(s=>s.locked&&!s.cmdId) && sequence.length>0;
 
   const runSequence = async () => {
     if (status==="running" || !allFilled) return;
@@ -310,6 +382,13 @@ export default function CodeTheCourse({ car, onBack }) {
   const isOnTrack   = (x,y) => level.trackPath.some(c=>c.x===x&&c.y===y);
   const isObsCell   = (x,y) => level.obstacles.some(o=>o.x===x&&o.y===y);
   const trackIdx    = (x,y) => level.trackPath.findIndex(c=>c.x===x&&c.y===y);
+
+  // Build slot→cell map for on-road visualization
+  const slotMap = buildSlotMap(
+    (slots || []).filter(s => s != null),
+    level && (level.start || { x: 0, y: 0 }),
+    level && (level.startDir || 'right')
+  );
 
   const bg = "linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)";
   const card = {background:"rgba(255,255,255,0.05)",borderRadius:16,padding:16,backdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,0.1)"};
@@ -387,12 +466,25 @@ export default function CodeTheCourse({ car, onBack }) {
                   }}/>
                 )}
 
-                {/* Directional arrow */}
-                {onTrack&&!isObs&&!isCarHere&&arrow&&(
-                  <div style={{position:"absolute",fontSize:"1.3rem",color:"rgba(255,255,255,0.75)",lineHeight:1,pointerEvents:"none",zIndex:1}}>
-                    {arrow}
-                  </div>
-                )}
+{(() => {
+                  // Find if this cell has a slot assignment
+                  const entry = Object.values(slotMap).find(e => e.cell && e.cell.x === x && e.cell.y === y);
+                  if (!entry) {
+                    // Regular track cell — show faint direction arrow
+                    if (onTrack && !isObs && !isCarHere && arrow) return <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:2,opacity:0.3,fontSize:'1.2rem',color:'#ffe066'}}>{arrow}</div>;
+                    return null;
+                  }
+                  if (entry.type === 'gap') {
+                    // Unfilled slot — pulsing ?
+                    return <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:2,fontSize:'1.5rem',color:'#ffe066',animation:'ctcPulse 1s ease-in-out infinite'}}>?</div>;
+                  }
+                  if (entry.type === 'turn') {
+                    return <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:2}}><TurnArrow fromDir={entry.fromDir} toDir={entry.toDir} size={40}/></div>;
+                  }
+                  // forward — show directional arrow
+                  const dirArrow = {right:'→',left:'←',up:'↑',down:'↓'}[entry.fromDir] || '→';
+                  return <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:2,fontSize:'1.5rem',color:'#ffe066'}}>{dirArrow}</div>;
+                })()}
 
                 {level.start.x===x&&level.start.y===y&&!isCarHere&&<div style={{position:"absolute",bottom:2,fontSize:"0.55rem",color:"#27ae60",fontWeight:700,zIndex:2}}>START</div>}
                 {isObs&&!isCarHere&&<span style={{fontSize:"1.6rem",zIndex:2}}>🚧</span>}
@@ -418,51 +510,32 @@ export default function CodeTheCourse({ car, onBack }) {
         </div>
       </div>
 
-      {/* Sequence tray */}
-      <div style={{...card,marginBottom:12,width:"100%",maxWidth:380}}>
-        <div style={{color:"#aee4f7",fontSize:"0.8rem",marginBottom:8,fontWeight:600}}>YOUR SEQUENCE — tap unlocked block to remove</div>
-        <div style={{display:"flex",gap:5,flexWrap:"wrap",minHeight:64}}>
-          {slots.map((slot,i)=>{
-            const cmd=COMMANDS.find(c=>c.id===slot.cmdId);
-            const isActive=i===activeStep;
-            return (
-              <div key={i} onClick={()=>!slot.locked&&removeCmd(i)} style={{
-                width:50,height:50,borderRadius:10,
-                border:slot.cmdId?`${slot.locked?"3px":"2px"} solid ${isActive?"#fff":slot.locked?"#ffe066":"rgba(255,255,255,0.3)"}`:"2px dashed rgba(255,255,255,0.2)",
-                background:cmd?cmd.color+(isActive?"ff":slot.locked?"ee":"99"):"rgba(255,255,255,0.04)",
-                display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:18,color:"#fff",cursor:slot.locked?"default":slot.cmdId?"pointer":"default",
-                boxShadow:isActive?"0 0 14px #fff":slot.locked&&slot.cmdId?"0 0 6px #ffe06666":"none",
-                transition:"all 0.15s",flexShrink:0,
-                fontFamily:"'Segoe UI',Arial,sans-serif",
-              }}>
-                {cmd?cmd.icon:<span style={{fontSize:13,color:"rgba(255,255,255,0.3)"}}>?</span>}
-              </div>
-            );
-          })}
-        </div>
-        {level.scaffold.length>0&&<div style={{color:"#ffe06699",fontSize:"0.72rem",marginTop:6}}>🔒 Gold-bordered blocks are hints — fill in the <span style={{color:"#fff"}}>?</span> gaps</div>}
-      </div>
-
       {/* Controls */}
-      <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:16}}>
-        <button onClick={runSequence}
-          disabled={status==="running"||!allFilled}
-          style={{
-            width:80,height:80,borderRadius:40,
-            background:status==="running"||!allFilled?"#555":"linear-gradient(135deg,#27ae60,#2ecc71)",
-            color:"#fff",fontWeight:900,border:"none",
-            cursor:status==="running"||!allFilled?"not-allowed":"pointer",
-            opacity:status==="running"||!allFilled?0.5:1,
-            boxShadow:status!=="running"&&allFilled?"0 4px 20px rgba(39,174,96,0.5)":"none",
-            transition:"all 0.2s",display:"flex",flexDirection:"column",
-            alignItems:"center",justifyContent:"center",lineHeight:1.2,fontSize:14,
-          }}>
-          {status==="running"?<>🚗<span style={{fontSize:11}}>...</span></>:<>🚦<span style={{fontSize:15,fontWeight:900}}>GO!</span></>}
-        </button>
-        <button onClick={undoLast} disabled={status==="running"} style={{padding:"12px 20px",borderRadius:24,background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:15,border:"none",cursor:"pointer"}}>⌫ Undo</button>
-        <button onClick={clearAll} disabled={status==="running"} style={{padding:"12px 20px",borderRadius:24,background:"rgba(192,57,43,0.5)",color:"#fff",fontSize:15,border:"none",cursor:"pointer"}}>✕ Clear</button>
-      </div>
+        <div style={{display:'flex',gap:'0.5rem',alignItems:'center',justifyContent:'center',padding:'0.5rem'}}>
+          <button
+            onClick={undoLast}
+            disabled={status === 'running'}
+            style={{padding:'0.4rem 1rem',borderRadius:'8px',border:'none',background:'#333',color:'#fff',cursor:'pointer',fontSize:'1rem'}}
+          >⌫ Undo</button>
+          <button
+            onClick={clearAll}
+            disabled={status === 'running'}
+            style={{padding:'0.4rem 1rem',borderRadius:'8px',border:'none',background:'#333',color:'#fff',cursor:'pointer',fontSize:'1rem'}}
+          >✕ Clear</button>
+          {allFilled && status === 'idle' && (
+            <span style={{color:'#ffe066',fontSize:'0.9rem',marginLeft:'0.5rem'}}>✓ Ready — launching…</span>
+          )}
+        </div>
+      {/* GO! overlay */}
+      {showGoOverlay && (
+        <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999,pointerEvents:'none',background:'rgba(0,0,0,0.15)'}}>
+          <span style={{fontSize:'6rem',fontWeight:900,color:'#ffe066',textShadow:'0 4px 24px rgba(0,0,0,0.5)',animation:'goPopIn 0.35s ease-out forwards'}}>GO!</span>
+        </div>
+      )}
+      <style>{`
+        @keyframes goPopIn { from { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.25); } to { transform: scale(1); opacity: 1; } }
+        @keyframes ctcPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+      `}</style>
     </div>
   );
 }
