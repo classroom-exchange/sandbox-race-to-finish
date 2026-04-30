@@ -250,6 +250,9 @@ const GRID = 5;
 
 export default function CodeTheCourse({ car, onBack }) {
   const [levelIndex, setLevelIndex] = useState(0);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [levelComplete, setLevelComplete] = useState(false);
+
   const [slots, setSlots]           = useState(()=>buildSlots(LEVELS[0].scaffold));
   const [carPos, setCarPos]         = useState(LEVELS[0].start);
   const [carDir, setCarDir]         = useState(LEVELS[0].startDir);
@@ -342,6 +345,63 @@ export default function CodeTheCourse({ car, onBack }) {
   }
 
   const runSequence = async () => {
+      if (status==='running' || !canRun) return;
+      runRef.current = true;
+      setStatus('running');
+      setRacing(true);
+
+      let pos={...level.start}, dir=level.startDir;
+      const isObs  = p=>level.obstacles.some(o=>o.x===p.x&&o.y===p.y);
+      const isFin  = p=>p.x===level.finish.x&&p.y===level.finish.y;
+      const outOOB = p=>p.x<0||p.x>=GRID||p.y<0||p.y>=GRID;
+
+      let result=null;
+      for (let i=0; i<sequence.length&&runRef.current; i++) {
+        const cmd=sequence[i];
+        setActiveStep(i);
+        await sleep(480);
+        if (cmd==='turnLeft')  { dir=turnLeft(dir);  setCarDir(dir); }
+        else if (cmd==='turnRight') { dir=turnRight(dir); setCarDir(dir); }
+        else if (cmd==='forward') {
+          const next=moveInDir(pos,dir);
+          if (outOOB(next)||isObs(next)) { result='crash'; break; }
+          pos=next; setCarPos({...pos});
+          setAnimCell(`${pos.x}-${pos.y}`);
+          setTimeout(()=>setAnimCell(null),350);
+          if (isFin(pos)) { result='win'; break; }
+        }
+      }
+      setActiveStep(-1);
+      runRef.current=false;
+
+      if (result==='win' || (!result && pos.x===level.finish.x && pos.y===level.finish.y)) {
+        setStatus('win');
+        const newWins=winsThisLevel+1;
+        setWrongAttempts(0); // Reset wrong attempts on win
+        if (newWins>=2) {
+          const newStars=[...new Set([...stars,levelIndex])];
+          setStars(newStars);
+          localStorage.setItem('ctc-stars-'+levelIndex, JSON.stringify(getStarsForLevel(levelIndex)));
+          await sleep(2000);
+          if (levelIndex<LEVELS.length-1) {
+            const next=levelIndex+1;
+            setLevelIndex(next); setWins(0); resetLevel(next);
+          } else {
+            setStatus('complete');
+          }
+        } else {
+          setWins(newWins);
+          await sleep(1800);
+          resetLevel(levelIndex); setWins(newWins);
+        }
+      } else {
+        setWrongAttempts(wrongAttempts+1); // Increment wrong attempts on crash
+        setStatus('crash');
+        setRacing(false);
+        await sleep(1500);
+        resetLevel(levelIndex); setWins(winsThisLevel);
+      }
+    };
     if (status==="running" || !canRun) return;
     runRef.current = true;
     setStatus("running");
