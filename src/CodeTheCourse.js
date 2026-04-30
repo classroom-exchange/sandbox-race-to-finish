@@ -250,6 +250,9 @@ const GRID = 5;
 
 export default function CodeTheCourse({ car, onBack }) {
   const [levelIndex, setLevelIndex] = useState(0);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [levelComplete, setLevelComplete] = useState(false);
+
   const [slots, setSlots]           = useState(()=>buildSlots(LEVELS[0].scaffold));
   const [carPos, setCarPos]         = useState(LEVELS[0].start);
   const [carDir, setCarDir]         = useState(LEVELS[0].startDir);
@@ -341,10 +344,15 @@ export default function CodeTheCourse({ car, onBack }) {
     setSlots(buildSlots(level.scaffold));
   }
 
+  const getStarsForLevel = (idx) => {
+    const numStars = wrongAttempts === 0 ? 3 : wrongAttempts <= 2 ? 2 : 1;
+    return { stars: numStars };
+  };
+
   const runSequence = async () => {
-    if (status==="running" || !canRun) return;
+    if (status==='running' || !canRun) return;
     runRef.current = true;
-    setStatus("running");
+    setStatus('running');
     setRacing(true);
 
     let pos={...level.start}, dir=level.startDir;
@@ -357,41 +365,37 @@ export default function CodeTheCourse({ car, onBack }) {
       const cmd=sequence[i];
       setActiveStep(i);
       await sleep(480);
-      if (cmd==="turnLeft")  { dir=turnLeft(dir);  setCarDir(dir); }
-      else if (cmd==="turnRight") { dir=turnRight(dir); setCarDir(dir); }
-      else if (cmd==="forward") {
+      if (cmd==='turnLeft')  { dir=turnLeft(dir);  setCarDir(dir); }
+      else if (cmd==='turnRight') { dir=turnRight(dir); setCarDir(dir); }
+      else if (cmd==='forward') {
         const next=moveInDir(pos,dir);
-        if (outOOB(next)||isObs(next)) { result="crash"; break; }
+        if (outOOB(next)||isObs(next)) { result='crash'; break; }
         pos=next; setCarPos({...pos});
         setAnimCell(`${pos.x}-${pos.y}`);
         setTimeout(()=>setAnimCell(null),350);
-        if (isFin(pos)) { result="win"; break; }
+        if (isFin(pos)) { result='win'; break; }
       }
     }
     setActiveStep(-1);
     runRef.current=false;
 
-    if (result==="win" || (!result && pos.x===level.finish.x && pos.y===level.finish.y)) {
-      setStatus("win");
+    if (result==='win' || (!result && pos.x===level.finish.x && pos.y===level.finish.y)) {
+      setStatus('win');
       const newWins=winsThisLevel+1;
       if (newWins>=2) {
         const newStars=[...new Set([...stars,levelIndex])];
         setStars(newStars);
-        localStorage.setItem("ctc_stars",JSON.stringify(newStars));
-        await sleep(2000);
-        if (levelIndex<LEVELS.length-1) {
-          const next=levelIndex+1;
-          setLevelIndex(next); setWins(0); resetLevel(next);
-        } else {
-          setStatus("complete");
-        }
+        localStorage.setItem('ctc_stars',JSON.stringify(newStars));
+        setLevelComplete(true);
       } else {
         setWins(newWins);
+        setWrongAttempts(0);
         await sleep(1800);
         resetLevel(levelIndex); setWins(newWins);
       }
     } else {
-      setStatus("crash");
+      setWrongAttempts(prev => prev + 1);
+      setStatus('crash');
       setRacing(false);
       await sleep(1500);
       resetLevel(levelIndex); setWins(winsThisLevel);
@@ -575,6 +579,55 @@ export default function CodeTheCourse({ car, onBack }) {
       {showGoOverlay && (
         <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999,pointerEvents:'none',background:'rgba(0,0,0,0.15)'}}>
           <span style={{fontSize:'6rem',fontWeight:900,color:'#ffe066',textShadow:'0 4px 24px rgba(0,0,0,0.5)',animation:'goPopIn 0.35s ease-out forwards'}}>GO!</span>
+        </div>
+      )}
+      {levelComplete && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:10000,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <style>{`@keyframes ctcStarPop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}`}</style>
+          <div style={{background:'#fff',borderRadius:16,padding:'2rem 2.5rem',textAlign:'center',minWidth:260,boxShadow:'0 8px 32px rgba(0,0,0,0.4)'}}>
+            <div style={{fontSize:'2rem',fontWeight:'bold',marginBottom:8}}>🏁 Level Complete!</div>
+            <div style={{display:'flex',gap:8,justifyContent:'center',margin:'1rem 0'}}>
+              {[1,2,3].map(n => {
+                const {stars: _s} = getStarsForLevel(levelIndex);
+                return (
+                  <span key={n} style={{
+                    fontSize:'2.5rem',
+                    display:'inline-block',
+                    animation: n <= _s ? `ctcStarPop 0.35s ease-out ${(n-1)*0.2}s both` : 'none',
+                    opacity: n <= _s ? 1 : 0.25,
+                  }}>{n <= _s ? '⭐' : '☆'}</span>
+                );
+              })}
+            </div>
+            <div style={{fontSize:'1.1rem',marginBottom:'1.2rem',color:'#555'}}>
+              {(() => { const {stars:_s2} = getStarsForLevel(levelIndex); return _s2 === 3 ? '⭐ Perfect!' : _s2 === 2 ? '🌟 Great job!' : '👍 Keep going!'; })()}
+            </div>
+            <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+              <button
+                onClick={() => {
+                  const next = (levelIndex + 1) % LEVELS.length;
+                  setLevelIndex(next);
+                  setSlots(LEVELS[next].scaffold.map((v,i) => ({cmdId:v||null, locked:v!==null, id:`slot-${i}`})));
+                  setStatus('idle');
+                  setWins(0);
+                  setWrongAttempts(0);
+                  setLevelComplete(false);
+                }}
+                style={{padding:'0.6rem 1.2rem',background:'#4caf50',color:'#fff',border:'none',borderRadius:8,fontSize:'1rem',cursor:'pointer',fontWeight:'bold'}}>
+                ▶ Next Level
+              </button>
+              <button
+                onClick={() => {
+                  setSlots(level.scaffold.map((v,i) => ({cmdId:v||null, locked:v!==null, id:`slot-${i}`})));
+                  setStatus('idle');
+                  setWrongAttempts(0);
+                  setLevelComplete(false);
+                }}
+                style={{padding:'0.6rem 1.2rem',background:'#2196f3',color:'#fff',border:'none',borderRadius:8,fontSize:'1rem',cursor:'pointer',fontWeight:'bold'}}>
+                ↩ Replay
+              </button>
+            </div>
+          </div>
         </div>
       )}
       <style>{`
