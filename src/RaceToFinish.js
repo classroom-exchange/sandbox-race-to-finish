@@ -197,6 +197,63 @@ function MaterSVG({ dir = "right", size = 48 }) {
   );
 }
 
+
+function DocHudsonSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 90 55"
+      style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      <path d="M12,35 Q14,20 28,18 L62,18 Q74,20 76,35 L76,45 L12,45 Z" fill="#2c3e6e"/>
+      <path d="M28,18 Q30,10 38,9 L52,9 Q60,10 62,18 Z" fill="#263360"/>
+      <path d="M32,17 Q33,11 40,10 L50,10 Q56,11 58,17 Z" fill="#aee4f7" opacity="0.8"/>
+      <rect x="35" y="21" width="8" height="7" rx="2" fill="white"/>
+      <rect x="47" y="21" width="8" height="7" rx="2" fill="white"/>
+      <rect x="36" y="22" width="5" height="5" rx="1" fill="#3a5fc0"/>
+      <rect x="48" y="22" width="5" height="5" rx="1" fill="#3a5fc0"/>
+      <circle cx="38" cy="24" r="1.5" fill="black"/>
+      <circle cx="50" cy="24" r="1.5" fill="black"/>
+      <circle cx="37" cy="23" r="0.7" fill="white"/>
+      <circle cx="49" cy="23" r="0.7" fill="white"/>
+      <text x="44" y="40" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#aee4f7" fontFamily="Arial">51</text>
+      <rect x="12" y="34" width="6" height="8" rx="1" fill="#c0c0c0"/>
+      <line x1="13" y1="36" x2="17" y2="36" stroke="#888" strokeWidth="1"/>
+      <line x1="13" y1="38" x2="17" y2="38" stroke="#888" strokeWidth="1"/>
+      <line x1="13" y1="40" x2="17" y2="40" stroke="#888" strokeWidth="1"/>
+      <circle cx="25" cy="46" r="7" fill="#222"/><circle cx="25" cy="46" r="3.5" fill="#777"/>
+      <circle cx="65" cy="46" r="7" fill="#222"/><circle cx="65" cy="46" r="3.5" fill="#777"/>
+      <ellipse cx="9" cy="36" rx="3" ry="2.5" fill="#ffe066"/>
+      <polygon points="76,30 80,26 80,35 76,35" fill="#253055"/>
+    </svg>
+  );
+}
+
+function CruzRamirezSVG({ dir = "right", size = 48 }) {
+  const flipH = dir === "left";
+  const rotate = dir === "up" ? -90 : dir === "down" ? 90 : 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 50"
+      style={{ transform: `rotate(${rotate}deg) scaleX(${flipH ? -1 : 1})`, transition: "transform 0.3s" }}>
+      <path d="M10,32 Q12,22 24,20 L56,20 Q68,22 70,32 L70,42 L10,42 Z" fill="#f5c518"/>
+      <path d="M24,20 Q26,13 36,12 L50,12 Q58,13 56,20 Z" fill="#e0b015"/>
+      <path d="M28,19 Q29,13 37,12 L49,12 Q55,13 54,19 Z" fill="#aee4f7" opacity="0.85"/>
+      <ellipse cx="34" cy="24" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="50" cy="24" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="35" cy="24.5" rx="3.5" ry="4" fill="#c0392b"/>
+      <ellipse cx="51" cy="24.5" rx="3.5" ry="4" fill="#c0392b"/>
+      <circle cx="36" cy="23.5" r="1.3" fill="black"/>
+      <circle cx="52" cy="23.5" r="1.3" fill="black"/>
+      <circle cx="35" cy="22.5" r="0.7" fill="white"/>
+      <circle cx="51" cy="22.5" r="0.7" fill="white"/>
+      <text x="40" y="36" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#333" fontFamily="Arial">78</text>
+      <circle cx="20" cy="43" r="7" fill="#222"/><circle cx="20" cy="43" r="3.5" fill="#888"/>
+      <circle cx="60" cy="43" r="7" fill="#222"/><circle cx="60" cy="43" r="3.5" fill="#888"/>
+      <ellipse cx="70" cy="30" rx="4" ry="2.5" fill="#ffe066"/>
+      <line x1="15" y1="32" x2="65" y2="32" stroke="#e0b015" strokeWidth="1.5" opacity="0.5"/>
+    </svg>
+  );
+}
+
 function FlagSVG() {
   return (
     <svg width="36" height="36" viewBox="0 0 36 36">
@@ -229,13 +286,20 @@ function btnStyle(bg, color, disabled=false) {
 
 
 function UnlockModal({ char, onClose }) {
+  // Show car SVG for characters that have matching SVG components in this file
+  const charSVG = char.id === 'mcqueen' ? <CarSVG dir="right" size={72} />
+               : char.id === 'mater'   ? <MaterSVG dir="right" size={72} />
+               : null;
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.82)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:16}}>
       <div style={{background:`linear-gradient(135deg,${char.color}22,#1a1a2e)`,border:`3px solid ${char.color}`,borderRadius:24,padding:"32px 24px",textAlign:"center",maxWidth:320,width:"100%",boxShadow:`0 8px 40px ${char.color}88`,animation:"pop 0.4s"}}>
         <div style={{fontSize:"3rem",marginBottom:8}}>&#x1F3CE;&#xFE0F;</div>
         <div style={{fontSize:"0.85rem",color:"#aee4f7",letterSpacing:2,marginBottom:6,fontWeight:"bold"}}>NEW CHARACTER UNLOCKED!</div>
         <div style={{fontSize:"1.6rem",fontWeight:900,color:char.color,marginBottom:12,textShadow:`0 2px 12px ${char.color}`}}>{char.name}</div>
-        <div style={{width:48,height:48,borderRadius:"50%",background:char.color,margin:"0 auto 14px",boxShadow:`0 0 20px ${char.color}88`}}/>
+        {charSVG
+          ? <div style={{margin:"0 auto 14px",display:"flex",justifyContent:"center"}}>{charSVG}</div>
+          : <div style={{width:48,height:48,borderRadius:"50%",background:char.color,margin:"0 auto 14px",boxShadow:`0 0 20px ${char.color}88`}}/>
+        }
         <div style={{color:"#e0e0e0",fontSize:"1rem",marginBottom:20,lineHeight:1.5}}>{char.description}</div>
         <button onClick={onClose} style={{background:char.color,color:"#fff",border:"none",borderRadius:12,padding:"12px 28px",fontSize:"1rem",fontWeight:"bold",cursor:"pointer",boxShadow:`0 4px 16px ${char.color}66`}}>Awesome! &#x1F389;</button>
       </div>
@@ -271,58 +335,56 @@ function CollectionModal({ chars, unlocked, onClose }) {
   );
 }
 
+const CAR_PICKER_DATA = [
+  { id: 'mcqueen',    label: 'McQueen',    color: '#e8002d', unlockLevel: 1, SVG: CarSVG,         desc: 'Fast race car!' },
+  { id: 'mater',      label: 'Mater',      color: '#8B6914', unlockLevel: 1, SVG: MaterSVG,       desc: 'Friendly tow truck!' },
+  { id: 'the-king',   label: 'The King',   color: '#87CEEB', unlockLevel: 1, SVG: TheKingSVG,     desc: 'Win Level 1 to unlock' },
+  { id: 'doc-hudson', label: 'Doc Hudson', color: '#2c3e6e', unlockLevel: 3, SVG: DocHudsonSVG,   desc: 'Win Level 3 to unlock' },
+  { id: 'cruz',       label: 'Cruz',       color: '#f5c518', unlockLevel: 5, SVG: CruzRamirezSVG, desc: 'Win Level 5 to unlock' },
+];
+
 // Car picker screen
-function CarPicker({ onPick }) {
+function CarPicker({ onPick, onBack }) {
+  const unlockedCars = (() => {
+    try { return JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')) || ['mcqueen','mater']; }
+    catch { return ['mcqueen','mater']; }
+  })();
   return (
-    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'Segoe UI',Arial,sans-serif"}}>
+    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'Segoe UI',Arial,sans-serif",position:"relative"}}>
+      {onBack && <button onClick={onBack} style={{position:"absolute",top:12,left:12,padding:"6px 14px",borderRadius:20,background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",cursor:"pointer",fontSize:14}}>← Menu</button>}
       <div style={{fontSize:"2rem",fontWeight:900,color:"#ffe066",textShadow:"0 2px 12px #ff8800",marginBottom:8,textAlign:"center"}}>🏁 Race to the Finish!</div>
       <div style={{color:"#aee4f7",fontSize:"1.1rem",marginBottom:32,textAlign:"center"}}>Pick your car to start!</div>
-      <div style={{display:"flex",gap:32,flexWrap:"wrap",justifyContent:"center"}}>
-        {/* McQueen */}
-        <div onClick={()=>onPick("mcqueen")} style={{
-          background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
-          border:"3px solid #e8002d", borderRadius:20, padding:"28px 32px",
-          cursor:"pointer", textAlign:"center", transition:"transform 0.2s, box-shadow 0.2s",
-          boxShadow:"0 4px 24px #e8002d55"
-        }}
-        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"}
-        onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
-          <div style={{marginBottom:12}}>
-            <CarSVG dir="right" size={80}/>
-          </div>
-          <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>⚡ McQueen</div>
-          <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Fast race car!</div>
-        </div>
-        {/* The King */}
-        <div onClick={()=>onPick("the-king")} style={{
-          background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
-          border:"3px solid #FFD700", borderRadius:20, padding:"28px 32px",
-          cursor:"pointer", textAlign:"center", transition:"transform 0.2s, box-shadow 0.2s",
-          boxShadow:"0 4px 24px #FFD70055"
-        }}
-        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"}
-        onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
-          <div style={{marginBottom:12}}>
-            <TheKingSVG dir="right" size={80}/>
-          </div>
-          <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>👑 The King</div>
-          <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Golden racer!</div>
-        </div>
-        {/* Mater */}
-        <div onClick={()=>onPick("mater")} style={{
-          background:"linear-gradient(135deg,#1a1a3e,#0f3460)",
-          border:"3px solid #8B6914", borderRadius:20, padding:"28px 32px",
-          cursor:"pointer", textAlign:"center", transition:"transform 0.2s, box-shadow 0.2s",
-          boxShadow:"0 4px 24px #8B691455"
-        }}
-        onMouseEnter={e=>e.currentTarget.style.transform="scale(1.06)"}
-        onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
-          <div style={{marginBottom:12}}>
-            <MaterSVG dir="right" size={80}/>
-          </div>
-          <div style={{color:"#ffe066",fontWeight:"bold",fontSize:"1.1rem"}}>🪝 Mater</div>
-          <div style={{color:"#aee4f7",fontSize:"0.85rem",marginTop:4}}>Friendly tow truck!</div>
-        </div>
+      <div style={{display:"flex",gap:20,flexWrap:"wrap",justifyContent:"center",maxWidth:600}}>
+        {CAR_PICKER_DATA.map(c => {
+          const isUnlocked = unlockedCars.includes(c.id);
+          return (
+            <div key={c.id}
+              onClick={() => isUnlocked && onPick(c.id)}
+              style={{
+                background: isUnlocked ? "linear-gradient(135deg,#1a1a3e,#0f3460)" : "rgba(255,255,255,0.03)",
+                border: `3px solid ${isUnlocked ? c.color : '#ffffff22'}`,
+                borderRadius:20, padding:"24px 28px",
+                cursor: isUnlocked ? "pointer" : "not-allowed",
+                textAlign:"center",
+                transition:"transform 0.2s, box-shadow 0.2s",
+                boxShadow: isUnlocked ? `0 4px 24px ${c.color}55` : "none",
+                filter: isUnlocked ? "none" : "grayscale(1)",
+                opacity: isUnlocked ? 1 : 0.5,
+                position:"relative", minWidth:110,
+              }}
+              onMouseEnter={e => isUnlocked && (e.currentTarget.style.transform="scale(1.06)")}
+              onMouseLeave={e => (e.currentTarget.style.transform="scale(1)")}>
+              {!isUnlocked && <div style={{position:"absolute",top:8,right:10,fontSize:"1.1rem"}}>🔒</div>}
+              <div style={{marginBottom:10}}>
+                <c.SVG dir="right" size={72}/>
+              </div>
+              <div style={{color: isUnlocked ? "#ffe066" : "#aee4f7",fontWeight:"bold",fontSize:"1rem"}}>{c.label}</div>
+              <div style={{color: isUnlocked ? "#aee4f7" : "#ffffff44",fontSize:"0.8rem",marginTop:4}}>
+                {isUnlocked ? "Ready to race!" : `Level ${c.unlockLevel}+`}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -347,6 +409,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   });
   const [showUnlock, setShowUnlock] = useState(null);
   const [showCollection, setShowCollection] = useState(false);
+  const [newCarUnlock, setNewCarUnlock] = useState(null); // { id, name } of newly unlocked playable car
   const [showGoPopup, setShowGoPopup] = useState(false);
   const runRef = useRef(false);
 
@@ -378,6 +441,7 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   }
 
   const controlsRef = useRef(null);
+  const plannedPos = getPlannedPos();
 
   useEffect(() => { if (variation) resetLevel(); }, [levelIdx, varIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -484,13 +548,21 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
         const _base = JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')) || ['mcqueen','mater'];
         const _lvl = levelIdx + 1; // 1-based
         const _extra = [];
-        if (newCount >= WINS_NEEDED) {
-          if (_lvl >= 2) _extra.push('the-king');
-          if (_lvl >= 4) _extra.push('doc-hudson');
-          if (_lvl >= 6) _extra.push('cruz');
+        if (newCount >= 1) {  // unlock on first win of the unlock level
+          if (_lvl >= 1) _extra.push('the-king');
+          if (_lvl >= 3) _extra.push('doc-hudson');
+          if (_lvl >= 5) _extra.push('cruz');
         }
-        if (_extra.some(id => !_base.includes(id)))
+        if (_extra.some(id => !_base.includes(id))) {
           localStorage.setItem('race-to-finish-unlocked-cars', JSON.stringify([...new Set([..._base, ..._extra])]));
+          // Detect exactly which car was just newly unlocked at this mastery level
+          const CAR_NAMES = { 'the-king': 'The King', 'doc-hudson': 'Doc Hudson', 'cruz': 'Cruz Ramirez' };
+          let _newCar = null;
+          if (_lvl === 1 && !_base.includes('the-king')) _newCar = 'the-king';
+          else if (_lvl === 3 && !_base.includes('doc-hudson')) _newCar = 'doc-hudson';
+          else if (_lvl === 5 && !_base.includes('cruz')) _newCar = 'cruz';
+          if (_newCar) setTimeout(() => setNewCarUnlock({ id: _newCar, name: CAR_NAMES[_newCar] }), 1200);
+        }
       } catch {}
     } else { setStatus("miss"); }
     setRunning(false);
@@ -548,13 +620,16 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
     return () => clearTimeout(timer);
   }, [showGoPopup]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!selectedCar) return <CarPicker onPick={setSelectedCar}/>;
+  if (!selectedCar) return <CarPicker onPick={setSelectedCar} onBack={onBack}/>;
 
   const currentWins = winCounts[levelIdx];
   const mastered = currentWins >= WINS_NEEDED;
   const cellSize = 72;
-  const plannedPos = getPlannedPos();
-  const VehicleSVG = selectedCar === "mater" ? MaterSVG : selectedCar === "the-king" ? TheKingSVG : CarSVG;
+  const VehicleSVG = selectedCar === "mater" ? MaterSVG
+  : selectedCar === "the-king" ? TheKingSVG
+  : selectedCar === "doc-hudson" ? DocHudsonSVG
+  : selectedCar === "cruz" ? CruzRamirezSVG
+  : CarSVG;
 
   // Build planned path for arrow overlay
   const plannedCells = [];
@@ -581,6 +656,21 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
         </div>
       )}
       {showUnlock && <UnlockModal char={showUnlock} onClose={()=>setShowUnlock(null)}/>}
+      {newCarUnlock && (
+        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.75)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:201,flexDirection:"column"}}>
+          <div style={{background:"#1a1a2e",border:"3px solid #ffe066",borderRadius:20,padding:"32px 40px",textAlign:"center",boxShadow:"0 8px 40px rgba(255,224,102,0.3)",animation:"pop 0.4s",maxWidth:320,width:"100%"}}>
+            <div style={{fontSize:"3rem",marginBottom:8}}>&#x1F3C6;</div>
+            <div style={{fontSize:"0.85rem",color:"#ffe066",letterSpacing:2,marginBottom:6,fontWeight:"bold"}}>NEW CAR UNLOCKED!</div>
+            <div style={{fontSize:"1.6rem",fontWeight:900,color:"#ffe066",marginBottom:8,textShadow:"0 2px 12px #ff8800"}}>{newCarUnlock.name}</div>
+            <p style={{color:"#aee4f7",fontSize:"0.95rem",marginBottom:20,lineHeight:1.5}}>Head to <strong>Change Car</strong> to race with it! &#x1F3CE;&#xFE0F;</p>
+            <button
+              onClick={() => setNewCarUnlock(null)}
+              style={{background:"linear-gradient(135deg,#ffe066,#ff8800)",color:"#1a1a2e",border:"none",borderRadius:12,padding:"12px 28px",fontSize:"1rem",fontWeight:"bold",cursor:"pointer",boxShadow:"0 4px 16px rgba(255,136,0,0.5)"}}>
+              Awesome! &#x1F389;
+            </button>
+          </div>
+        </div>
+      )}
       {showCollection && <CollectionModal chars={CHARACTERS} unlocked={unlockedChars} onClose={()=>setShowCollection(false)}/>}
 
       <button onClick={onBack} style={{position:"absolute",top:12,left:12,padding:"6px 14px",borderRadius:20,background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",cursor:"pointer",fontSize:14,zIndex:10}}>&#x2190; Menu</button>
@@ -755,3 +845,4 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
     </div>
   );
 }
+
