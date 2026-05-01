@@ -285,7 +285,40 @@ const CIRCUITS = [
     },
   ] },
   { id:2, name:"Decision Dash", icon:"🔀", color:"#8e44ad",
-    description:"Choose your path!",                  levels:[] },
+    description:"Choose your path!",                  levels:[
+    {
+      label:"Fork in the Road",
+      hint:"Pick the right path at the fork! 🔀",
+      start:{x:0,y:2}, startDir:"right",
+      finish:{x:4,y:0}, obstacles:[{x:4,y:2}],
+      scaffold:["forward","forward",null,"forward","forward"],
+      trackPath:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:2,y:1},{x:2,y:0},{x:3,y:0},{x:4,y:0}],
+    },
+    {
+      label:"Two Roads",
+      hint:"Up or down? Choose carefully! ⬆️⬇️",
+      start:{x:0,y:2}, startDir:"right",
+      finish:{x:4,y:4}, obstacles:[{x:3,y:2}],
+      scaffold:["forward",null,"forward",null,"forward"],
+      trackPath:[{x:0,y:2},{x:1,y:2},{x:1,y:3},{x:2,y:3},{x:3,y:3},{x:4,y:3},{x:4,y:4}],
+    },
+    {
+      label:"Crossroads",
+      hint:"Navigate the crossroads without crashing! 🚦",
+      start:{x:0,y:0}, startDir:"right",
+      finish:{x:4,y:4}, obstacles:[{x:2,y:2}],
+      scaffold:["forward","forward",null,"forward",null,"forward","forward"],
+      trackPath:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:2,y:1},{x:3,y:1},{x:4,y:1},{x:4,y:2},{x:4,y:3},{x:4,y:4}],
+    },
+    {
+      label:"Decision Master",
+      hint:"Every turn is a decision — make them all right! 🏆",
+      start:{x:0,y:0}, startDir:"right",
+      finish:{x:4,y:4}, obstacles:[{x:2,y:0},{x:0,y:4}],
+      scaffold:[null,"forward",null,"forward",null,"forward",null],
+      trackPath:[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:3,y:3},{x:3,y:4},{x:4,y:4}],
+    },
+  ] },
 ];
 
 const sleep = ms => new Promise(r => setTimeout(r,ms));
