@@ -142,7 +142,56 @@ function buildSlotMap(slots, startCell, startDir) {
 }
 
 // ── Level definitions ─────────────────────────────────────────────────────────
-// All trackPaths use {x:col, y:row}. startDir: "right"|"left"|"up"|"down"
+// All trackPaths use {x:col, y:row}. startDir: "right"|"left"
+
+const LEVELS = [
+  {
+    // Level 1 — Hairpin U-bend. Simple 3-side oval shape, 1 gap
+    label: 'Hairpin Bend',
+    hint: 'Go right, turn, go down, turn, go left! 🔄',
+    start:{x:0,y:1}, startDir:'right',
+    finish:{x:0,y:3}, obstacles:[],
+    scaffold:['forward','forward','forward','turnRight','forward','forward',null,'forward','forward','forward'],
+    demoMode:true,
+    demoSolution:['forward','forward','forward','turnRight','forward','forward','forward','forward','forward','forward']
+  },
+  {
+    // Level 2 — Pattern Park - Level 1
+    label: 'Pattern Park - Level 1',
+    hint: 'Find the pattern and complete the track!',
+    start:{x:0,y:1}, startDir:'right',
+    finish:{x:3,y:4}, obstacles:[],
+    scaffold:['forward','turnRight','forward','turnLeft','forward','forward'],
+    demoMode:false
+  },
+  {
+    // Level 3 — Pattern Park - Level 2
+    label: 'Pattern Park - Level 2',
+    hint: 'Find the pattern and complete the track!',
+    start:{x:0,y:1}, startDir:'right',
+    finish:{x:4,y:5}, obstacles:[],
+    scaffold:['forward','turnRight','forward','turnLeft','forward','forward','forward','turnRight','forward','turnLeft'],
+    demoMode:false
+  },
+  {
+    // Level 4 — Pattern Park - Level 3
+    label: 'Pattern Park - Level 3',
+    hint: 'Find the pattern and complete the track!',
+    start:{x:0,y:1}, startDir:'right',
+    finish:{x:5,y:6}, obstacles:[],
+    scaffold:['forward','turnRight','forward','turnLeft','forward','forward','forward','turnRight','forward','turnLeft','forward','forward'],
+    demoMode:false
+  },
+  {
+    // Level 5 — Pattern Park - Level 4
+    label: 'Pattern Park - Level 4',
+    hint: 'Find the pattern and complete the track!',
+    start:{x:0,y:1}, startDir:'right',
+    finish:{x:6,y:7}, obstacles:[],
+    scaffold:['forward','turnRight','forward','turnLeft','forward','forward','forward','turnRight','forward','turnLeft','forward','forward','forward'],
+    demoMode:false
+  }
+];t"|"up"|"down"
 const LEVELS = [
   {
     // Level 1 — Hairpin U-bend. Simple 3-side oval shape, 1 gap
@@ -234,8 +283,46 @@ const COMMANDS = [
 
 // ── Circuits ──────────────────────────────────────────────────────────────────
 const CIRCUITS = [
-  { id:0, name:"Starter Lane",  icon:"🏁", color:"#27ae60",
-    description:"Learn to code the track!",           levels:LEVELS },
+  { id:0, name:'Starter Lane',  icon:'🏁', color:'#27ae60',
+    description:'Learn to code the track!',           levels:LEVELS },
+  { id:1, name:'Pattern Park',  icon:'🔁', color:'#f39c12',
+    description:'Spot the patterns!',                 levels:[
+      {
+        label: 'Pattern Park - Level 1',
+        hint: 'Find the pattern and complete the track!',
+        start:{x:0,y:1}, startDir:'right',
+        finish:{x:3,y:4}, obstacles:[],
+        scaffold:['forward','turnRight','forward','turnLeft','forward','forward'],
+        demoMode:false
+      },
+      {
+        label: 'Pattern Park - Level 2',
+        hint: 'Find the pattern and complete the track!',
+        start:{x:0,y:1}, startDir:'right',
+        finish:{x:4,y:5}, obstacles:[],
+        scaffold:['forward','turnRight','forward','turnLeft','forward','forward','forward','turnRight','forward','turnLeft'],
+        demoMode:false
+      },
+      {
+        label: 'Pattern Park - Level 3',
+        hint: 'Find the pattern and complete the track!',
+        start:{x:0,y:1}, startDir:'right',
+        finish:{x:5,y:6}, obstacles:[],
+        scaffold:['forward','turnRight','forward','turnLeft','forward','forward','forward','turnRight','forward','turnLeft','forward','forward'],
+        demoMode:false
+      },
+      {
+        label: 'Pattern Park - Level 4',
+        hint: 'Find the pattern and complete the track!',
+        start:{x:0,y:1}, startDir:'right',
+        finish:{x:6,y:7}, obstacles:[],
+        scaffold:['forward','turnRight','forward','turnLeft','forward','forward','forward','turnRight','forward','turnLeft','forward','forward','forward'],
+        demoMode:false
+      }
+    ] },
+  { id:2, name:'Decision Dash', icon:'🔀', color:'#8e44ad',
+    description:'Choose your path!',                  levels:[] }
+];
   { id:1, name:"Pattern Park",  icon:"🔁", color:"#f39c12",
     description:"Spot the patterns!",                 levels:[
       {
