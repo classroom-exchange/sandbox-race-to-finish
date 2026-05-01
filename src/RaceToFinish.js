@@ -1,4 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
+const [muted, setMuted] = useState(false);
+
+useEffect(() => {
+  const savedMuted = localStorage.getItem('race-to-finish-muted');
+  if (savedMuted !== null) {
+    setMuted(savedMuted === 'true');
+  }
+}, []);
+
+const toggleMute = () => {
+  setMuted(!muted);
+  localStorage.setItem('race-to-finish-muted', muted.toString());
+};
 
 const WINS_NEEDED = 2;
 const GRID = 5;
