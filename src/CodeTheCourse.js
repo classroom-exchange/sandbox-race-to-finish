@@ -404,6 +404,7 @@ function getHeadingAt(idx,slots,startDir){
 export default function CodeTheCourse({ car, onBack }) {
   const [levelIndex, setLevelIndex] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
+const [attemptCounter, setAttemptCounter] = useState(0);
   const [levelComplete, setLevelComplete] = useState(false);
 
   const [slots, setSlots]           = useState(()=>buildSlots(LEVELS[0].scaffold));
@@ -568,6 +569,7 @@ export default function CodeTheCourse({ car, onBack }) {
       }
     } else {
       setWrongAttempts(prev => prev + 1);
+setAttemptCounter(prev => prev + 1);
       playSound('crash'); setStatus('crash');
       setRacing(false);
       await sleep(1500);
