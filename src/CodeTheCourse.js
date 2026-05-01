@@ -568,7 +568,14 @@ const [attemptCounter, setAttemptCounter] = useState(0);
         resetLevel(levelIndex); setWins(newWins);
       }
     } else {
+      setAttemptCounter(prev => prev + 1);
       setWrongAttempts(prev => prev + 1);
+      if (attemptCounter === 3) {
+        const wrongSlot = slots.findIndex(s => !s.cmdId && !s.locked);
+        if (wrongSlot !== -1) {
+          setTimeout(() => { setAnimCell(`${slotMap[wrongSlot].cell.x}-${slotMap[wrongSlot].cell.y}`); setTimeout(() => setAnimCell(null), 350); }, 200);
+        }
+      }
 setAttemptCounter(prev => prev + 1);
       playSound('crash'); setStatus('crash');
       setRacing(false);
