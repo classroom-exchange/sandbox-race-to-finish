@@ -404,6 +404,7 @@ function getHeadingAt(idx,slots,startDir){
 export default function CodeTheCourse({ car, onBack }) {
   const [levelIndex, setLevelIndex] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [attemptCount, setAttemptCount] = useState(0);
   const [levelComplete, setLevelComplete] = useState(false);
 
   const [slots, setSlots]           = useState(()=>buildSlots(LEVELS[0].scaffold));
@@ -464,6 +465,7 @@ export default function CodeTheCourse({ car, onBack }) {
     setActiveStep(-1);
     setAnimCell(null);
     runRef.current = false;
+    setAttemptCount(0);
   }
 
   function addCmd(id) {
@@ -568,6 +570,7 @@ export default function CodeTheCourse({ car, onBack }) {
       }
     } else {
       setWrongAttempts(prev => prev + 1);
+      setAttemptCount(prev => prev + 1);
       playSound('crash'); setStatus('crash');
       setRacing(false);
       await sleep(1500);
@@ -737,6 +740,11 @@ export default function CodeTheCourse({ car, onBack }) {
                     const isActive = isDemoMode && activeGapIdx >= 0 && slotMap[activeGapIdx] === entry;
                     const ghostCmd = isActive && demoCorrectCmd
                       ? COMMANDS.find(c => c.id === demoCorrectCmd) : null;
+                    const gapEntries = Object.values(slotMap);
+                    const firstUnfilledGap = gapEntries.find(e => e.type === 'gap' && !e.cmdId);
+                    const isFirstGap = entry === firstUnfilledGap;
+                    const pulseHint = isFirstGap && attemptCount >= 3;
+                    const showLightbulb = isFirstGap && attemptCount >= 5;
                     return (
                       <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',zIndex:2,pointerEvents:'none'}}>
                         {ghostCmd ? (
@@ -744,7 +752,7 @@ export default function CodeTheCourse({ car, onBack }) {
                             {getCmdIcon(ghostCmd.id)}
                           </div>
                         ) : (
-                          <div style={{background:'rgba(255,224,102,0.12)',border:'2px dashed #ffe066',borderRadius:8,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',color:'#ffe066',animation:'ctcPulse 1s ease-in-out infinite'}}>?</div>
+                          <div style={{background:pulseHint?'rgba(255,224,102,0.28)':'rgba(255,224,102,0.12)',border:pulseHint?'2px solid #ffe066':'2px dashed #ffe066',borderRadius:8,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',color:'#ffe066',animation:pulseHint?'ctcPulse 0.5s ease-in-out infinite':'ctcPulse 1s ease-in-out infinite'}}>{showLightbulb?'💡':'?'}</div>
                         )}
                       </div>
                     );
