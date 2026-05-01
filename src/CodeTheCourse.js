@@ -151,6 +151,8 @@ const LEVELS = [
     start:{x:0,y:1}, startDir:"right",
     finish:{x:0,y:3}, obstacles:[],
     scaffold:["forward","forward","forward","turnRight","forward","forward",null,"forward","forward","forward"],
+    demoMode:true,
+    demoSolution:["forward","forward","forward","turnRight","forward","forward","forward","forward","forward","forward"],
     trackPath:[
       {x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1},   // top straight →
       {x:3,y:2},{x:3,y:3},                          // right side ↓
@@ -230,6 +232,16 @@ const COMMANDS = [
   { id:"turnRight",  icon:"↷",  label:"Turn Right", color:"#8e44ad" },
 ];
 
+// ── Circuits ──────────────────────────────────────────────────────────────────
+const CIRCUITS = [
+  { id:0, name:"Starter Lane",  icon:"🏁", color:"#27ae60",
+    description:"Learn to code the track!",           levels:LEVELS },
+  { id:1, name:"Pattern Park",  icon:"🔁", color:"#f39c12",
+    description:"Spot the patterns!",                 levels:[] },
+  { id:2, name:"Decision Dash", icon:"🔀", color:"#8e44ad",
+    description:"Choose your path!",                  levels:[] },
+];
+
 const sleep = ms => new Promise(r => setTimeout(r,ms));
 function turnLeft(d)  { return {right:"up",up:"left",left:"down",down:"right"}[d]; }
 function turnRight(d) { return {right:"down",down:"left",left:"up",up:"right"}[d]; }
@@ -248,6 +260,68 @@ function buildSlots(scaffold) {
 
 const GRID = 5;
 
+// ── Sound engine ──────────────────────────────────────────────────────────────────────────────
+function useSoundEngine(muted) {
+  const ctxRef = useRef(null);
+  function getCtx() {
+    if (!ctxRef.current) {
+      try { ctxRef.current = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    return ctxRef.current;
+  }
+  return function playSound(name) {
+    if (muted) return;
+    const ctx = getCtx();
+    if (!ctx) return;
+    try {
+      const t = ctx.currentTime;
+      if (name === 'win') {
+        [523,659,784].forEach((freq,i)=>{
+          const osc=ctx.createOscillator(),gain=ctx.createGain();
+          osc.connect(gain);gain.connect(ctx.destination);
+          osc.type='sine';osc.frequency.value=freq;
+          gain.gain.setValueAtTime(0.3,t+i*0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.4);
+          osc.start(t+i*0.12);osc.stop(t+i*0.12+0.4);
+        });
+      } else if (name === 'crash') {
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.type='sawtooth';osc.frequency.setValueAtTime(200,t);
+        osc.frequency.exponentialRampToValueAtTime(80,t+0.5);
+        gain.gain.setValueAtTime(0.4,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+        osc.start(t);osc.stop(t+0.5);
+      } else if (name === 'go') {
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.type='square';osc.frequency.setValueAtTime(300,t);
+        osc.frequency.exponentialRampToValueAtTime(600,t+0.15);
+        gain.gain.setValueAtTime(0.2,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+        osc.start(t);osc.stop(t+0.2);
+      } else if (name === 'tap') {
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.type='square';osc.frequency.value=800;
+        gain.gain.setValueAtTime(0.15,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+        osc.start(t);osc.stop(t+0.08);
+      }
+    } catch(e) {}
+  };
+}
+function ctcTL(d){return{right:'up',up:'left',left:'down',down:'right'}[d]||d;}
+function ctcTR(d){return{right:'down',down:'left',left:'up',up:'right'}[d]||d;}
+function getDirArrow(d){return{right:'→',left:'←',up:'↑',down:'↓'}[d]||'?';}
+function getHeadingAt(idx,slots,startDir){
+  let dir=startDir||'right';
+  for(let i=0;i<idx&&i<slots.length;i++){
+    const s=slots[i];
+    if(!s||!s.cmdId)continue;
+    if(s.cmdId==='turnLeft')dir=ctcTL(dir);
+    else if(s.cmdId==='turnRight')dir=ctcTR(dir);
+  }
+  return dir;
+}
+
 export default function CodeTheCourse({ car, onBack }) {
   const [levelIndex, setLevelIndex] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
@@ -264,18 +338,34 @@ export default function CodeTheCourse({ car, onBack }) {
   const [animCell, setAnimCell]     = useState(null);
   const [showGoOverlay, setShowGoOverlay] = useState(false);
   const runRef = useRef(false);
+  const [muted, setMuted] = useState(false);
+  const playSound = useSoundEngine(muted);
+  const [circuitIdx, setCircuitIdx] = useState(null);
 
-  const level       = LEVELS[levelIndex];
+  const level = CIRCUITS[circuitIdx ?? 0].levels[levelIndex] || LEVELS[0];
   const sequence    = slots.filter(s=>s.cmdId).map(s=>s.cmdId);
   const isOpenLevel = level.scaffold.length === 0;
   const gapIndices  = level.scaffold.map((v,i)=>v===null?i:-1).filter(i=>i>=0);
   const allFilled   = isOpenLevel ? false : (gapIndices.length > 0 && gapIndices.every(i=>slots[i]?.cmdId));
+  const activeGapIdx = isOpenLevel
+    ? slots.findIndex(s => !s.cmdId && !s.locked)
+    : (gapIndices.find(gi => !slots[gi]?.cmdId) ?? -1);
+  const headingAtGap = activeGapIdx >= 0
+    ? getHeadingAt(activeGapIdx, slots, level.startDir)
+    : level.startDir;
+  const getCmdIcon = (cmdId) => cmdId === 'forward' ? getDirArrow(headingAtGap)
+    : cmdId === 'turnLeft' ? getDirArrow(ctcTL(headingAtGap))
+    : cmdId === 'turnRight' ? getDirArrow(ctcTR(headingAtGap)) : '?';
   const canRun      = isOpenLevel ? sequence.length > 0 : allFilled;
+  const isDemoMode  = Boolean(level.demoMode);
+  const demoCorrectCmd = (isDemoMode && activeGapIdx >= 0 && level.demoSolution)
+    ? (level.demoSolution[activeGapIdx] || null)
+    : null;
 
   // Auto-run when all slots filled
   useEffect(() => {
     if (allFilled && status === 'idle') {
-      const t1 = setTimeout(() => setShowGoOverlay(true), 200);
+      const t1 = setTimeout(() => { setShowGoOverlay(true); playSound('go'); }, 200);
       const t2 = setTimeout(() => {
         setShowGoOverlay(false);
         runSequence();
@@ -284,8 +374,9 @@ export default function CodeTheCourse({ car, onBack }) {
     }
   }, [allFilled, status]);
 
-  function resetLevel(idx) {
-    const lv = LEVELS[idx ?? levelIndex];
+  function resetLevel(idx, forCircuitIdx) {
+    const activeCircuit = CIRCUITS[forCircuitIdx ?? circuitIdx ?? 0];
+    const lv = activeCircuit.levels[idx ?? levelIndex] || LEVELS[0];
     setSlots(buildSlots(lv.scaffold));
     setCarPos(lv.start);
     setCarDir(lv.startDir);
@@ -298,6 +389,8 @@ export default function CodeTheCourse({ car, onBack }) {
 
   function addCmd(id) {
     if (status==="running") return;
+    if (isDemoMode && demoCorrectCmd && id !== demoCorrectCmd) return;
+    playSound('tap');
     if (isOpenLevel) {
       setSlots(prev=>{
         const i=prev.findIndex(s=>!s.cmdId&&!s.locked);
@@ -323,6 +416,7 @@ export default function CodeTheCourse({ car, onBack }) {
 
   function undoLast() {
     if (status==="running") return;
+    playSound('tap');
     if (isOpenLevel) {
       setSlots(prev=>{
         const idx=[...prev].reverse().findIndex(s=>s.cmdId&&!s.locked);
@@ -380,7 +474,7 @@ export default function CodeTheCourse({ car, onBack }) {
     runRef.current=false;
 
     if (result==='win' || (!result && pos.x===level.finish.x && pos.y===level.finish.y)) {
-      setStatus('win');
+      playSound('win'); setStatus('win');
       const newWins=winsThisLevel+1;
       if (newWins>=2) {
         const newStars=[...new Set([...stars,levelIndex])];
@@ -395,7 +489,7 @@ export default function CodeTheCourse({ car, onBack }) {
       }
     } else {
       setWrongAttempts(prev => prev + 1);
-      setStatus('crash');
+      playSound('crash'); setStatus('crash');
       setRacing(false);
       await sleep(1500);
       resetLevel(levelIndex); setWins(winsThisLevel);
@@ -415,6 +509,67 @@ export default function CodeTheCourse({ car, onBack }) {
 
   const bg = "linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)";
   const card = {background:"rgba(255,255,255,0.05)",borderRadius:16,padding:16,backdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,0.1)"};
+
+  if (circuitIdx === null) {
+    const c0Stars = stars.filter(i => i >= 0 && i < CIRCUITS[0].levels.length).length;
+    const c1Unlocked = c0Stars >= 4;
+    return (
+      <div style={{minHeight:"100vh",background:bg,display:"flex",flexDirection:"column",alignItems:"center",padding:16,fontFamily:"'Segoe UI',Arial,sans-serif"}}>
+        <style>{PULSE_STYLE}</style>
+        <button onClick={onBack} style={{position:"absolute",top:12,left:12,padding:"6px 14px",borderRadius:20,background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",cursor:"pointer",fontSize:14,zIndex:10}}>← Menu</button>
+        <div style={{textAlign:"center",marginBottom:24,marginTop:48}}>
+          <div style={{fontSize:"1.8rem",fontWeight:900,color:"#ffe066"}}>🏎️ Code the Course</div>
+          <div style={{color:"#aee4f7",fontSize:"0.9rem",marginTop:4}}>Choose your circuit</div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:16,width:"100%",maxWidth:380}}>
+          {CIRCUITS.map((circuit, ci) => {
+            const locked = ci === 1 ? !c1Unlocked : ci === 2;
+            const comingSoon = circuit.levels.length === 0;
+            const circStars = ci === 0 ? c0Stars : 0;
+            const maxLv = CIRCUITS[0].levels.length;
+            return (
+              <div key={ci}
+                onClick={locked || comingSoon ? null : () => {
+                  const lv0 = circuit.levels[0] || LEVELS[0];
+                  setCircuitIdx(ci);
+                  setLevelIndex(0);
+                  setSlots(buildSlots(lv0.scaffold));
+                  setCarPos(lv0.start);
+                  setCarDir(lv0.startDir);
+                  setStatus("idle");
+                  setRacing(false);
+                  setActiveStep(-1);
+                  setAnimCell(null);
+                  runRef.current = false;
+                  setWins(0);
+                }}
+                style={{
+                  ...card,
+                  display:"flex",alignItems:"center",gap:16,
+                  opacity: locked ? 0.55 : 1,
+                  cursor: locked || comingSoon ? "default" : "pointer",
+                  border:`2px solid ${locked ? "rgba(255,255,255,0.1)" : circuit.color}`,
+                  transition:"all 0.15s",
+                }}>
+                <div style={{fontSize:"2.5rem"}}>{locked ? "🔒" : circuit.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,color:"#ffe066",fontSize:"1rem"}}>{circuit.name}</div>
+                  <div style={{color:"#aee4f7",fontSize:"0.8rem",marginTop:2}}>{circuit.description}</div>
+                  {ci === 0 && <div style={{marginTop:4,fontSize:"0.8rem",color:"#aee4f7"}}>
+                    {Array.from({length:maxLv},(_,i)=><span key={i}>{stars.includes(i)?"⭐":"·"}</span>)}
+                    {" "}{circStars}/{maxLv} levels
+                  </div>}
+                  {locked && ci === 1 && <div style={{fontSize:"0.75rem",color:"#ff9999",marginTop:2}}>Complete 4+ Starter Lane levels to unlock</div>}
+                  {comingSoon && ci > 0 && <div style={{fontSize:"0.75rem",color:"#ffe066",marginTop:2}}>🚧 Coming soon</div>}
+                </div>
+                {!locked && !comingSoon && <div style={{color:"#ffe066",fontSize:"1.2rem"}}>▶</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   if (status==="complete") {
     return (
@@ -436,7 +591,8 @@ export default function CodeTheCourse({ car, onBack }) {
     <div style={{position:"relative",minHeight:"100vh",background:bg,display:"flex",flexDirection:"column",alignItems:"center",padding:16,fontFamily:"'Segoe UI',Arial,sans-serif"}}>
       <style>{PULSE_STYLE}</style>
 
-      <button onClick={onBack} style={{position:"absolute",top:12,left:12,padding:"6px 14px",borderRadius:20,background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",cursor:"pointer",fontSize:14,zIndex:10}}>← Menu</button>
+      <button onClick={()=>setCircuitIdx(null)} style={{position:"absolute",top:12,left:12,padding:"6px 14px",borderRadius:20,background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",cursor:"pointer",fontSize:14,zIndex:10}}>← Circuits</button>
+      <button onClick={()=>setMuted(m=>!m)} style={{position:"absolute",top:12,right:12,padding:"6px 14px",borderRadius:20,background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",cursor:"pointer",fontSize:14,zIndex:10}}>{muted?"🔇":"🔊"}</button>
 
       {/* Header */}
       <div style={{textAlign:"center",marginBottom:10,marginTop:36}}>
@@ -446,6 +602,7 @@ export default function CodeTheCourse({ car, onBack }) {
           <span style={{marginLeft:8}}>{LEVELS.map((_,i)=><span key={i}>{stars.includes(i)?"⭐":"·"}</span>)}</span>
         </div>
         <div style={{color:"#ffffff99",fontSize:"0.85rem",fontStyle:"italic",marginTop:2}}>{level.hint}</div>
+        {isDemoMode&&<div style={{color:"#ffe066",fontSize:"0.8rem",fontWeight:600,marginTop:4,background:"rgba(255,224,102,0.1)",borderRadius:8,padding:"4px 12px"}}>👆 Tutorial — tap the glowing command!</div>}
         {winsThisLevel===1&&<div style={{color:"#ffe066",fontSize:"0.85rem",marginTop:2}}>⭐ 1 win — one more for a star!</div>}
       </div>
 
@@ -498,9 +655,18 @@ export default function CodeTheCourse({ car, onBack }) {
                     return null;
                   }
                   if (entry.type === 'gap') {
+                    const isActive = isDemoMode && activeGapIdx >= 0 && slotMap[activeGapIdx] === entry;
+                    const ghostCmd = isActive && demoCorrectCmd
+                      ? COMMANDS.find(c => c.id === demoCorrectCmd) : null;
                     return (
                       <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',zIndex:2,pointerEvents:'none'}}>
-                        <div style={{background:'rgba(255,224,102,0.12)',border:'2px dashed #ffe066',borderRadius:8,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',color:'#ffe066',animation:'ctcPulse 1s ease-in-out infinite'}}>?</div>
+                        {ghostCmd ? (
+                          <div style={{background:ghostCmd.color+'55',border:`2px dashed ${ghostCmd.color}`,borderRadius:8,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',color:'#fff',animation:'ctcPulse 0.8s ease-in-out infinite',opacity:0.75}}>
+                            {getCmdIcon(ghostCmd.id)}
+                          </div>
+                        ) : (
+                          <div style={{background:'rgba(255,224,102,0.12)',border:'2px dashed #ffe066',borderRadius:8,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',color:'#ffe066',animation:'ctcPulse 1s ease-in-out infinite'}}>?</div>
+                        )}
                       </div>
                     );
                   }
@@ -550,7 +716,7 @@ export default function CodeTheCourse({ car, onBack }) {
             <button key={cmd.id} onClick={()=>addCmd(cmd.id)} title={cmd.label}
               disabled={status==="running"||(!isOpenLevel&&allFilled)||sequence.length>=MAX_SEQ}
               style={{width:58,height:58,borderRadius:12,background:cmd.color+"cc",border:"2px solid rgba(255,255,255,0.2)",color:"#fff",fontSize:22,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s",fontFamily:"'Segoe UI',Arial,sans-serif"}}>
-              {cmd.icon}
+              {getCmdIcon(cmd.id)}
             </button>
           ))}
         </div>
@@ -605,9 +771,12 @@ export default function CodeTheCourse({ car, onBack }) {
             <div style={{display:'flex',gap:12,justifyContent:'center'}}>
               <button
                 onClick={() => {
-                  const next = (levelIndex + 1) % LEVELS.length;
+                  const activeCircuit = CIRCUITS[circuitIdx ?? 0];
+                  const next = (levelIndex + 1) % (activeCircuit.levels.length || 1);
+                  const nextLv = activeCircuit.levels[next] || LEVELS[0];
                   setLevelIndex(next);
-                  setSlots(LEVELS[next].scaffold.map((v,i) => ({cmdId:v||null, locked:v!==null, id:`slot-${i}`})));
+                  setSlots(buildSlots(nextLv.scaffold));
+                  setCarPos(nextLv.start); setCarDir(nextLv.startDir);
                   setStatus('idle');
                   setWins(0);
                   setWrongAttempts(0);
@@ -618,7 +787,8 @@ export default function CodeTheCourse({ car, onBack }) {
               </button>
               <button
                 onClick={() => {
-                  setSlots(level.scaffold.map((v,i) => ({cmdId:v||null, locked:v!==null, id:`slot-${i}`})));
+                  setSlots(buildSlots(level.scaffold));
+                  setCarPos(level.start); setCarDir(level.startDir);
                   setStatus('idle');
                   setWrongAttempts(0);
                   setLevelComplete(false);
