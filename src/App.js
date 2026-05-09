@@ -1,3 +1,4 @@
+// dev: app entry point
 import { useState, useEffect } from "react";
 import RaceToFinish from "./RaceToFinish";
 import CodeTheCourse from "./CodeTheCourse";
