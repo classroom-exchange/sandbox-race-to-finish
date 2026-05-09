@@ -661,6 +661,9 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
   return (
     <div style={{position:"relative",minHeight:"100vh",background:"linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)",display:"flex",flexDirection:"column",alignItems:"center",padding:"16px",fontFamily:"'Segoe UI',Arial,sans-serif"}}>
+      <div style={{marginBottom:8,padding:"6px 20px",background:"rgba(255,215,0,0.13)",border:"2px solid #FFD70088",borderRadius:12,color:"#FFD700",fontWeight:"bold",fontSize:"1rem",letterSpacing:1}}>
+        🏆 High Score: {highScore}
+      </div>
       <div style={{marginBottom:8,padding:"6px 20px",background:"rgba(255,255,255,0.08)",border:"2px solid #ffe06666",borderRadius:12,color:"#ffe066",fontWeight:"bold",fontSize:"1rem",textAlign:"center"}}>
         🏆 High Score: {highScore}
       </div>
