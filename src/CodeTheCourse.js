@@ -405,6 +405,7 @@ export default function CodeTheCourse({ car, onBack }) {
   const [levelIndex, setLevelIndex] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [attemptCount, setAttemptCount] = useState(0);
+  const [showCircuitIntro, setShowCircuitIntro] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
 
   const [slots, setSlots]           = useState(()=>buildSlots(LEVELS[0].scaffold));
@@ -614,6 +615,7 @@ export default function CodeTheCourse({ car, onBack }) {
                 onClick={locked || comingSoon ? null : () => {
                   const lv0 = circuit.levels[0] || LEVELS[0];
                   setCircuitIdx(ci);
+                  setShowCircuitIntro(true);
                   setLevelIndex(0);
                   setSlots(buildSlots(lv0.scaffold));
                   setCarPos(lv0.start);
@@ -656,13 +658,18 @@ export default function CodeTheCourse({ car, onBack }) {
   if (status==="complete") {
     return (
       <div style={{minHeight:"100vh",background:bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Segoe UI',Arial,sans-serif"}}>
-        <style>{PULSE_STYLE}</style>
-        <div style={{...card,textAlign:"center",padding:40}}>
-          <div style={{fontSize:"3rem"}}>🎉</div>
-          <div style={{fontSize:"2rem",fontWeight:900,color:"#ffe066",marginTop:12}}>All done!</div>
-          <div style={{color:"#aee4f7",marginTop:8}}>You mastered all 5 tracks!</div>
-          <div style={{marginTop:12}}>{LEVELS.map((_,i)=><span key={i}>⭐</span>)}</div>
-          <button onClick={()=>{setLevelIndex(0);setWins(0);resetLevel(0);}} style={{marginTop:24,padding:"12px 28px",borderRadius:24,background:"#ffe066",color:"#1a1a2e",fontWeight:700,fontSize:16,border:"none",cursor:"pointer"}}>Play Again</button>
+        <style>{PULSE_STYLE}{`@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}`}</style>
+        {[...Array(12)].map((_,i)=>(
+          <div key={i} style={{position:'fixed',left:`${i*8+4}%`,top:'-20px',width:8,height:16,
+            background:['#ffe066','#27ae60','#e74c3c','#3498db'][i%4],borderRadius:2,
+            animation:`confettiFall ${1.5+i*0.2}s ease-in ${i*0.15}s infinite`}}/>
+        ))}
+        <div style={{textAlign:"center",padding:40,position:'relative',zIndex:1}}>
+          <div style={{fontSize:"3.5rem",marginBottom:8}}>🏆</div>
+          <div style={{fontSize:"2rem",fontWeight:900,color:"#ffe066",marginTop:8}}>Champion!</div>
+          <div style={{margin:"16px 0"}}><CarSVG car={car} dir="right" size={80}/></div>
+          <div style={{color:"#aee4f7",marginTop:8,fontSize:"0.95rem"}}>🏁 All circuits complete!<br/>You are a Code the Course Champion!</div>
+          <button onClick={()=>{setLevelIndex(0);setWins(0);setCircuitIdx(null);setStatus("idle");resetLevel(0);}} style={{marginTop:24,padding:"12px 28px",borderRadius:24,background:"#ffe066",color:"#1a1a2e",fontWeight:700,fontSize:16,border:"none",cursor:"pointer"}}>Play Again</button>
           <button onClick={onBack} style={{marginTop:12,display:"block",padding:"10px 24px",borderRadius:24,background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:15,border:"none",cursor:"pointer"}}>← Menu</button>
         </div>
       </div>
@@ -809,6 +816,19 @@ export default function CodeTheCourse({ car, onBack }) {
         </div>
       </div>
 
+      {/* Circuit intro overlay */}
+      {showCircuitIntro && (
+        <div onClick={()=>setShowCircuitIntro(false)}
+          style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:10001,
+            display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+          <CarSVG car={car} dir="right" size={100}/>
+          <div style={{background:'rgba(255,255,255,0.1)',borderRadius:16,padding:'16px 28px',marginTop:20,
+            color:'#ffe066',fontSize:'1.2rem',fontWeight:700,textAlign:'center',maxWidth:300}}>
+            {circuitIdx===0?"🏁 Let's race!":circuitIdx===1?"🔁 Spot the pattern!":"🔀 Choose wisely!"}
+          </div>
+          <div style={{color:'#aee4f7',fontSize:'0.8rem',marginTop:12}}>tap to start</div>
+        </div>
+      )}
       {/* Controls */}
         <div style={{display:'flex',gap:'0.5rem',alignItems:'center',justifyContent:'center',padding:'0.5rem'}}>
           <button
