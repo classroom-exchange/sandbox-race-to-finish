@@ -704,6 +704,10 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
       {/* Grid */}
       <div style={{position:"relative",width:GRID*cellSize,height:GRID*cellSize,borderRadius:12,overflow:"hidden",boxShadow:"0 8px 32px #0008",border:"3px solid #ffe06644",marginBottom:14}}>
+        {/* High Score display above grid */}
+      </div>
+      <div style={{marginBottom:8,padding:"4px 16px",background:"rgba(255,215,0,0.13)",border:"2px solid #ffd70088",borderRadius:10,color:"#ffd700",fontWeight:"bold",fontSize:"1rem",letterSpacing:1}}>🏆 High Score: {highScore}</div>
+      <div style={{position:"relative",width:GRID*72,height:GRID*72,borderRadius:12,overflow:"hidden",boxShadow:"0 8px 32px #0008",border:"3px solid #ffe06644",marginBottom:14}}>
         {Array.from({length:GRID}).map((_,r)=>Array.from({length:GRID}).map((_,c)=>{
           const isEnd = r===variation.end[0]&&c===variation.end[1];
           const isObs = variation.obstacles.some(o=>o[0]===r&&o[1]===c);
