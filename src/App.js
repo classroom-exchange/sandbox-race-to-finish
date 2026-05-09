@@ -191,6 +191,10 @@ const CARS = [
 ];
 
 export default function App() {
+  useEffect(() => {
+    console.log("App component mounted");
+  }, []);
+
   const [screen, setScreen] = useState("menu"); // menu | race | code
   const [unlockedCars, setUnlockedCars] = useState(() => {
     try { return JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')) || ['mcqueen','mater']; }
