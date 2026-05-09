@@ -411,6 +411,9 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
   const [showCollection, setShowCollection] = useState(false);
   const [newCarUnlock, setNewCarUnlock] = useState(null); // { id, name } of newly unlocked playable car
   const [showGoPopup, setShowGoPopup] = useState(false);
+  const [highScore, setHighScore] = useState(() => {
+    try { return parseInt(localStorage.getItem('race-to-finish-high-score') || '0', 10); } catch { return 0; }
+  });
   const runRef = useRef(false);
 
   useEffect(() => {
@@ -543,6 +546,15 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
       const newCount = Math.min(winCounts[levelIdx]+1, WINS_NEEDED);
       setWinCounts(w=>{ const n=[...w]; n[levelIdx]=newCount; return n; });
       setStatus("win");
+      // Update high score
+      try {
+        const totalWins = winCounts.reduce((a,b)=>a+b,0) + 1;
+        const storedHigh = parseInt(localStorage.getItem('race-to-finish-high-score') || '0', 10);
+        if (totalWins > storedHigh) {
+          localStorage.setItem('race-to-finish-high-score', String(totalWins));
+          setHighScore(totalWins);
+        }
+      } catch {}
       // Car unlock — write to localStorage when a level is mastered for the first time
       try {
         const _base = JSON.parse(localStorage.getItem('race-to-finish-unlocked-cars')) || ['mcqueen','mater'];
@@ -649,6 +661,9 @@ export default function RaceToFinish({ car: initialCar, onBack }) {
 
   return (
     <div style={{position:"relative",minHeight:"100vh",background:"linear-gradient(160deg,#1a1a2e,#16213e,#0f3460)",display:"flex",flexDirection:"column",alignItems:"center",padding:"16px",fontFamily:"'Segoe UI',Arial,sans-serif"}}>
+      <div style={{marginBottom:10,padding:"6px 20px",background:"rgba(255,224,102,0.12)",border:"2px solid #ffe06655",borderRadius:12,color:"#ffe066",fontWeight:"bold",fontSize:"1rem",letterSpacing:1,textAlign:"center"}}>
+        🏆 High Score: {highScore}
+      </div>
       {showGoPopup && (
         <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,pointerEvents:"none"}}>
           <style>{"@keyframes goPopIn{0%{transform:scale(0.5);opacity:0.7}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}"}</style>
